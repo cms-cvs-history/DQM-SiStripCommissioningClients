@@ -10,7 +10,7 @@
 <xdaq:Configure xmlns:xdaq="urn:xdaq-soap:3.0">
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 	
-    	<xc:Context url="http://_host:_portn">
+    	<xc:Context url="http://_host_:_port_">
                 <xc:Application class="SiStripCommissioningClient" id="15" instance="0" network="local"></xc:Application>
 			<properties xmlns="urn:xdaq-application:SiStripCommissioningClient" xsi:type="soapenc:Struct">
                                 <logLevel xsi:type="xsd:string">INFO</logLevel>
@@ -18,7 +18,7 @@
 		                <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
 <!--		                <subscribeList xsi:type="xsd:string"></subscribeList> -->
                         </properties>
-                <xc:Module>_libpath</xc:Module>
+                <xc:Module>_lib_</xc:Module>
 
         </xc:Context>
 </xc:Partition>
