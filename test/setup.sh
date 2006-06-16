@@ -5,9 +5,10 @@ eval `scramv1 ru -sh`
 HOST=$(echo `/bin/hostname` | sed 's/\//\\\//g')
 echo "The hostname is = $HOST"
 
-TEST_PATH=$(echo "${PWD}" | sed 's/\//\\\//g')
+PWD=$(echo "${PWD}" | sed 's/\//\\\//g')
 echo "The current directory is = $PWD"
 
+APPL="SiStripCommissioningClient"
 PACKAGE="SiStripCommissioningClients"
 SCRAM_ARCH="slc3_ia32_gcc323_dbg"
 
@@ -33,9 +34,9 @@ if [ -e startClient ]; then
     rm startClient
 fi
 
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${TEST_PATH}/g" -e "s/_lib_/${LIBRARY}/g" .profile.xml > profile.xml
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${TEST_PATH}/g" -e "s/_lib_/${LIBRARY}/g" .client.xml > client.xml 
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${TEST_PATH}/g" -e "s/_lib_/${LIBRARY}/g" .startClient > startClient
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" .profile.xml > profile.xml
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" -e "s/_appl_/${APPL}/g" .client.xml > client.xml 
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" .startClient > startClient
 
 chmod 751 profile.xml
 chmod 751 client.xml
