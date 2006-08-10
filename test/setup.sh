@@ -10,7 +10,7 @@ echo "The current directory is = $PWD"
 
 APPL="SiStripCommissioningClient"
 PACKAGE="SiStripCommissioningClients"
-SCRAM_ARCH="slc3_ia32_gcc323_dbg"
+SCRAM_ARCH="slc3_ia32_gcc323"
 
 LIB="${LOCALRT}/lib/$SCRAM_ARCH/libDQM${PACKAGE}.so"
 echo "Looking for the library $LIB"
