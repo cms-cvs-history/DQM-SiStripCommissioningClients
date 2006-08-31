@@ -30,20 +30,17 @@ PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
 void PedestalsHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
-  //@@ what about fed thresholds ??? missing this! need fed key...
-  //@@ have map<int,int> in base constructed using histo name...
+  if ( !db_ ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+	 << endl;
+    return;
+  }
 
-  // Retrieve descriptions for all PLL devices
-  SiStripConfigDb::FedDescriptions feds = db_->getFedDescriptions();
-
-  // Update peds/noise values in FED descriptions
-  update( feds );
-  
-  // Reset local cache 
+  // Update FED descriptions with new peds/noise values
   db_->resetFedDescriptions();
-  // Write all descriptions to cache
-  db_->setFedDescriptions( feds ); 
-  // Upload all descriptions in cache to database (minor version)
+  const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
+  update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
   db_->uploadFedDescriptions(false);
 
 }
@@ -90,6 +87,21 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 	  }
 	}
+      
+      } else {
+	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unable to find ticker thresholds for FED id/ch: " 
+	     << (*ifed)->getFedId() << "/"
+	     << ichan << "/"
+	     << " and device with at FEC/slot/ring/CCU/LLD channel: " 
+	     << path.fecCrate_ << "/"
+	     << path.fecSlot_ << "/"
+	     << path.fecRing_ << "/"
+	     << path.ccuAddr_ << "/"
+	     << path.ccuChan_ << "/"
+	     << path.channel_
+	     << endl;
       }
     }
   }

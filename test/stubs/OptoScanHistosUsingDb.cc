@@ -29,19 +29,12 @@ OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
 void OptoScanHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
-  // Retrieve descriptions for all PLL devices
-  SiStripConfigDb::DeviceDescriptions devices = db_->getDeviceDescriptions( LASERDRIVER );
-  
-  // Update gain/bias settings in LLD device descriptions
-  update( devices );
-  
-  // Reset local cache 
+  // Update LLD descriptions with new bias/gain settings
   db_->resetDeviceDescriptions();
-  // Write all descriptions to cache
-  db_->setDeviceDescriptions( devices ); 
-  // Upload all descriptions in cache to database (minor version)
+  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( LASERDRIVER );
+  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
-
+  
 }
 
 // -----------------------------------------------------------------------------
