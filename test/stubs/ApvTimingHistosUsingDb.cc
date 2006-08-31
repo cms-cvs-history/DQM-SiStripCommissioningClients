@@ -29,50 +29,50 @@ ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
 void ApvTimingHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
+  if ( !db_ ) {
+    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+	 << endl;
+    return;
+  }
+
   // Check maximum delay calculated by analysis loop
   if ( maxDelay_ < 0. || maxDelay_ > sistrip::maximum_ ) { 
     cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	 << " Unexpected value for maximum delay: " << maxDelay_ << endl
-	 << " Aborted upload to database..." << endl;
+	 << " Aborting upload..." << endl;
     return; 
   }
 
-  cout << "here 1" << endl;
-  
-  // Calculate PLL delay for each module
+  // Calculate PLL delays and ticker thresholds for each channel
   map<uint32_t,uint32_t> pll_delays;
-  pllDelays( pll_delays );
-  cout << "here 2" << endl;
+  map<uint32_t,float> ticker_thresh;
+  settings( pll_delays, ticker_thresh );
   
-  //@@ what about fed thresholds ??? laurent does this here! need fed key...
-  //@@ have map<int,int> in base constructed using histo name...
-  
-  // Retrieve descriptions for all PLL devices
-  SiStripConfigDb::DeviceDescriptions devices;
-  if ( db_ ) { devices = db_->getDeviceDescriptions( PLL ); }
-  else { cout << "here 30" << endl; }
-  cout << "here 3" << endl;
-
-  // Update delay settings in PLL device descriptions
-  update( pll_delays, devices );
-  cout << "here 4" << endl;
-  
-  // Reset local cache 
+  // Update PLL device descriptions
   db_->resetDeviceDescriptions();
-  cout << "here 5" << endl;
-  // Write all descriptions to cache
-  db_->setDeviceDescriptions( devices ); 
-  cout << "here 6" << endl;
-  // Upload all descriptions in cache to database (minor version)
+  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
+  update( pll_delays, const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
-  cout << "here 7" << endl;
-
+  
+  // Update FED descriptions with new ticker thresholds
+  if ( true ) {
+    db_->resetFedDescriptions();
+    const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
+    update( ticker_thresh, const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
+    db_->uploadFedDescriptions(false);
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::pllDelays( map<uint32_t,uint32_t>& pll_delays ) {
-  
+void ApvTimingHistosUsingDb::settings( map<uint32_t,uint32_t>& pll_delays,
+				       map<uint32_t,float>& ticker_thresh ) {
+
+  pll_delays.clear();
+  ticker_thresh.clear();
+
   // Iterate through all channels and calc PLL delay per module
   map<uint32_t,ApvTimingAnalysis::Monitorables>::const_iterator iter;
   for ( iter = data_.begin(); iter != data_.end(); iter++ ) {
@@ -92,6 +92,7 @@ void ApvTimingHistosUsingDb::pllDelays( map<uint32_t,uint32_t>& pll_delays ) {
     
     float delay = maxDelay_ - iter->second.delay_;
     pll_delays[key] = static_cast<uint32_t>( rint(delay*24./25.) );
+    ticker_thresh[key] = iter->second.base_ + (2./3.)*iter->second.height_;
     
   }
   
@@ -159,6 +160,53 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& pll_delays,
 	   << endl;
     }
 
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void ApvTimingHistosUsingDb::update( const map<uint32_t,float>& ticker_thresh,
+				     SiStripConfigDb::FedDescriptions& feds ) {
+  
+  // Iterate through feds and update fed descriptions
+  SiStripConfigDb::FedDescriptions::iterator ifed;
+  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    
+    for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
+
+      // Retrieve FEC key from FED-FEC map
+      uint32_t fec_key = 0;
+      uint32_t fed_key = SiStripReadoutKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
+      FedToFecMap::const_iterator ifec = mapping().find(fed_key);
+      if ( ifec != mapping().end() ) { fec_key = ifec->second; }
+      else {
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unable to find FEC key for FED id/ch: "
+	     << (*ifed)->getFedId() << "/" << ichan << endl;
+	continue; //@@ write defaults here?... 
+      }
+      
+      map<uint32_t,float>::const_iterator iter = ticker_thresh.find( fec_key );
+      if ( iter != ticker_thresh.end() ) {
+	Fed9U::Fed9UAddress addr( ichan );
+	(*ifed)->setFrameThreshold( addr, iter->second );
+      } else {
+	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unable to find ticker thresholds for FED id/ch: " 
+	     << (*ifed)->getFedId() << "/"
+	     << ichan << "/"
+	     << " and device with at FEC/slot/ring/CCU/LLD channel: " 
+	     << path.fecCrate_ << "/"
+	     << path.fecSlot_ << "/"
+	     << path.fecRing_ << "/"
+	     << path.ccuAddr_ << "/"
+	     << path.ccuChan_ << "/"
+	     << path.channel_
+	     << endl;
+      }
+    }
   }
   
 }
