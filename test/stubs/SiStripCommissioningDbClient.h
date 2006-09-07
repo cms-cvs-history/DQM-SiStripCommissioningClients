@@ -2,6 +2,8 @@
 #define DQM_SiStripCommissioningClients_SiStripCommissioningDbClient_H
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
+#include <boost/cstdint.hpp>
+#include<string>
 
 class SiStripConfigDb;
 
@@ -23,11 +25,11 @@ class SiStripCommissioningDbClient : public SiStripCommissioningClient {
   virtual void createHistograms( const sistrip::Task& task ) const;
   
   // Extract db connections params
-  std::string confdb_;
-  std::string partition_;
-  uint32_t major_;
-  uint32_t minor_;
-  
+  xdata::String confdb_;
+  xdata::String partition_;
+  xdata::UnsignedLong major_;
+  xdata::UnsignedLong minor_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SiStripCommissioningDbClient_H

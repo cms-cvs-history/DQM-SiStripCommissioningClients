@@ -1,7 +1,14 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/SiStripCommissioningDbClient.h"
 #include "DQM/SiStripCommissioningClients/test/stubs/CommissioningHistosUsingDb.h"
 #include "DQM/SiStripCommissioningClients/test/stubs/ApvTimingHistosUsingDb.h"
+#include "DQM/SiStripCommissioningClients/test/stubs/OptoScanHistosUsingDb.h"
+#include "DQM/SiStripCommissioningClients/test/stubs/VpspScanHistosUsingDb.h"
+//#include "DQM/SiStripCommissioningClients/test/stubs/FedTimingHistosUsingDb.h"
+#include "DQM/SiStripCommissioningClients/test/stubs/FedCablingHistosUsingDb.h"
+#include "DQM/SiStripCommissioningClients/test/stubs/PedestalsHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "xdata/include/xdata/UnsignedLong.h"
+#include "xdata/include/xdata/String.h"
 #include <SealBase/Callback.h>
 #include <iostream>
 
@@ -18,12 +25,14 @@ SiStripCommissioningDbClient::SiStripCommissioningDbClient( xdaq::ApplicationStu
     major_(0),
     minor_(0)
 {
+
   // Retrieve database configuration parameters
   xdata::InfoSpace *sp = getApplicationInfoSpace();
-  //sp->fireItemAvailable( "confdb", &confdb_ );
-  //sp->fireItemAvailable( "partition", &partition_ );
-  //sp->fireItemAvailable( "major", &major_ );
-  //sp->fireItemAvailable( "minor", &minor_ );
+  sp->fireItemAvailable( "confdb", &confdb_ );
+  sp->fireItemAvailable( "partition", &partition_ );
+  sp->fireItemAvailable( "major", &major_ );
+  sp->fireItemAvailable( "minor", &minor_ );
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -39,7 +48,12 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
   if ( histos_ ) { return; }
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, confdb_, partition_, major_, minor_ ); }
+  if      ( task == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  else if ( task == sistrip::FED_CABLING )    { histos_ = new FedCablingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  //else if ( task == sistrip::FED_TIMING )     { histos_ = new FedTimingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  else if ( task == sistrip::PEDESTALS )      { histos_ = new PedestalsHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  else if ( task == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  else if ( task == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
   else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;

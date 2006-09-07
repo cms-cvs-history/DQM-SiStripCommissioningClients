@@ -29,7 +29,18 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
   
   // Create database interface
   db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
-  //db_->openDbConnection();
+  db_->openDbConnection();
+
+  cout << "[" << __PRETTY_FUNCTION__ << "]"
+       << " SiStripConfigDB ptr: " << db_
+       << " confdb: " << confdb
+       << " login: " << login
+       << " passwd: " << passwd
+       << " path: " << path
+       << " partition: " << partition
+       << " major: " << major
+       << " minor: " << minor
+       << endl;
 
 }
 
@@ -38,7 +49,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
 CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   if ( db_ ) {
-    //db_->closeDbConnection();
+    db_->closeDbConnection();
     delete db_;
   }
 }

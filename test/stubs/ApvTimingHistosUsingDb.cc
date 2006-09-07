@@ -46,7 +46,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
 
   // Calculate PLL delays and ticker thresholds for each channel
   map<uint32_t,uint32_t> pll_delays;
-  map<uint32_t,float> ticker_thresh;
+  map<uint32_t,uint32_t> ticker_thresh;
   settings( pll_delays, ticker_thresh );
   
   // Update PLL device descriptions
@@ -68,18 +68,18 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
 // -----------------------------------------------------------------------------
 /** */
 void ApvTimingHistosUsingDb::settings( map<uint32_t,uint32_t>& pll_delays,
-				       map<uint32_t,float>& ticker_thresh ) {
+				       map<uint32_t,uint32_t>& ticker_thresh ) {
 
   pll_delays.clear();
   ticker_thresh.clear();
 
   // Iterate through all channels and calc PLL delay per module
-  map<uint32_t,ApvTimingAnalysis::Monitorables>::const_iterator iter;
+  map<uint32_t,ApvTimingAnalysis>::const_iterator iter;
   for ( iter = data_.begin(); iter != data_.end(); iter++ ) {
     
     // Check delay and tick height are valid
-    if ( iter->second.delay_ > sistrip::maximum_ ) { continue; }
-    if ( iter->second.height_ < 100. ) { continue; }
+    if ( iter->second.delay() > sistrip::maximum_ ) { continue; }
+    if ( iter->second.height() < 100. ) { continue; }
     
     // Create key specific to module
     SiStripControlKey::ControlPath path = SiStripControlKey::path( iter->first );
@@ -90,9 +90,9 @@ void ApvTimingHistosUsingDb::settings( map<uint32_t,uint32_t>& pll_delays,
 					   path.ccuAddr_,
 					   path.ccuChan_ );
     
-    float delay = maxDelay_ - iter->second.delay_;
+    float delay = maxDelay_ - iter->second.delay();
     pll_delays[key] = static_cast<uint32_t>( rint(delay*24./25.) );
-    ticker_thresh[key] = iter->second.base_ + (2./3.)*iter->second.height_;
+    ticker_thresh[key] = static_cast<uint32_t>( iter->second.base() + (2./3.)*iter->second.height() );
     
   }
   
@@ -166,7 +166,7 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& pll_delays,
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::update( const map<uint32_t,float>& ticker_thresh,
+void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& ticker_thresh,
 				     SiStripConfigDb::FedDescriptions& feds ) {
   
   // Iterate through feds and update fed descriptions
@@ -187,7 +187,7 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,float>& ticker_thresh,
 	continue; //@@ write defaults here?... 
       }
       
-      map<uint32_t,float>::const_iterator iter = ticker_thresh.find( fec_key );
+      map<uint32_t,uint32_t>::const_iterator iter = ticker_thresh.find( fec_key );
       if ( iter != ticker_thresh.end() ) {
 	Fed9U::Fed9UAddress addr( ichan );
 	(*ifed)->setFrameThreshold( addr, iter->second );

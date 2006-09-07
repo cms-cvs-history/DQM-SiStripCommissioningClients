@@ -59,10 +59,10 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns ) {
 					     (*iconn)->getCcu(),
 					     (*iconn)->getI2c(),
 					     ((*iconn)->getApv()-32)/2 );
-      map<uint32_t,FedCablingAnalysis::Monitorables>::const_iterator iter = data_.find( key );
+      map<uint32_t,FedCablingAnalysis>::const_iterator iter = data_.find( key );
       if ( iter != data_.end() ) { 
-	(*iconn)->setFedId( iter->second.fedId_ );
-	(*iconn)->setFedChannel( iter->second.fedCh_ );
+	(*iconn)->setFedId( iter->second.fedId() );
+	(*iconn)->setFedChannel( iter->second.fedCh() );
       } else {
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Unable to find FED connections info for device with params FEC/slot/ring/CCU: " 

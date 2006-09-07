@@ -73,14 +73,14 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 					   ichan );
       
     // Iterate through all channels and extract LLD settings 
-    map<uint32_t,VpspScanAnalysis::Monitorables>::const_iterator iter = data_.find( key );
+    map<uint32_t,VpspScanAnalysis>::const_iterator iter = data_.find( key );
     if ( iter != data_.end() ) {
       
       cout << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Initial VPSP setting: " << desc->getVpsp() << endl;
       
-      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp0_ ); }
-      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp1_ ); }
+      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp0() ); }
+      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp1() ); }
       
       cout << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Updated VPSP setting: " << desc->getVpsp() << endl;

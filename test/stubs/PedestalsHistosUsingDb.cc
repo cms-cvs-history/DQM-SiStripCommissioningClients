@@ -67,20 +67,20 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	continue; //@@ write defaults here?... 
       }
       
-      map<uint32_t,PedestalsAnalysis::Monitorables>::const_iterator iter = data_.find( fec_key );
+      map<uint32_t,PedestalsAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) {
 
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
-	  for ( uint16_t istr = 0; istr < iter->second.peds_[iapv].size(); istr++ ) { 
+	  for ( uint16_t istr = 0; istr < iter->second.peds()[iapv].size(); istr++ ) { 
 
 	    static float high_threshold = 5.;
 	    static float low_threshold  = 5.;
 	    static bool  disable_strip  = false;
-	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( iter->second.peds_[iapv][istr] ), 
+	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( iter->second.peds()[iapv][istr] ), 
 					       high_threshold, 
 					       low_threshold, 
-					       iter->second.noise_[iapv][istr],
+					       iter->second.noise()[iapv][istr],
 					       disable_strip );
 	    Fed9U::Fed9UAddress addr( ichan, iapv, istr );
 	    (*ifed)->getFedStrips().setStrip( addr, data );

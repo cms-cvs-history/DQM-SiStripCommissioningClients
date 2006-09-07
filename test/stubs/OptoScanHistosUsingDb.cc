@@ -30,10 +30,13 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   // Update LLD descriptions with new bias/gain settings
+  cout << "Enter uploadToConfigDb" << endl;
   db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( LASERDRIVER );
+  cout << "DeviceDescriptions size: " << devices.size() << endl;
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
+  cout << "Leave uploadToConfigDb" << endl;
   
 }
 
@@ -45,6 +48,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
+  cout << "here1" << endl;
+
     // Check device type
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) {
       cerr << "[" << __PRETTY_FUNCTION__ << "]"
@@ -52,6 +57,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       continue;
     }
     
+  cout << "here2" << endl;
     // Iterate through LLD channels
     for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
       
@@ -62,6 +68,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 					     (*idevice)->getCcuAddress(),
 					     (*idevice)->getChannel(),
 					     ichan );
+  cout << "here3" << endl;
 
       // Retrieve description
       laserdriverDescription* desc = reinterpret_cast<laserdriverDescription*>( *idevice );
@@ -70,26 +77,30 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	     << " Unable to dynamic cast to laserdriverDescription*" << endl;
 	continue;
       }
+  cout << "here4" << endl;
       
       // Iterate through all channels and extract LLD settings 
-      map<uint32_t,OptoScanAnalysis::Monitorables>::const_iterator iter = data_.find( key );
+      map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( key );
       if ( iter != data_.end() ) {
+  cout << "here5" << endl;
 
 	cout << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Initial bias/gain settings for LLD channel " << ichan << ": " 
 	     << desc->getGain(ichan) << "/" << desc->getBias(ichan)
 	     << endl;
 
-	uint16_t gain = iter->second.gain_;
+	uint16_t gain = iter->second.gain();
 	desc->setGain( ichan, gain );
-	desc->setBias( ichan, iter->second.bias_[gain] );
+	desc->setBias( ichan, iter->second.bias()[gain] );
 	
 	cout << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Updated bias/gain settings for LLD channel " << ichan << ": " 
 	     << desc->getGain(ichan) << "/" << desc->getBias(ichan)
 	     << endl;
+  cout << "here6" << endl;
       
       } else {
+  cout << "here7" << endl;
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Unable to find PLL settings for device with params FEC/slot/ring/CCU/LLD channel: " 
 	     << (*idevice)->getFecSlot() << "/"
@@ -99,6 +110,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	     << ichan
 	     << endl;
       }
+  cout << "here8" << endl;
       
     }
 
