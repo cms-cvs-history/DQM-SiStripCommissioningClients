@@ -36,30 +36,17 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
     return;
   }
 
-  // Check maximum delay calculated by analysis loop
-  if ( maxDelay_ < 0. || maxDelay_ > sistrip::maximum_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected value for maximum delay: " << maxDelay_ << endl
-	 << " Aborting upload..." << endl;
-    return; 
-  }
-
-  // Calculate PLL delays and ticker thresholds for each channel
-  map<uint32_t,uint32_t> pll_delays;
-  map<uint32_t,uint32_t> ticker_thresh;
-  settings( pll_delays, ticker_thresh );
-  
   // Update PLL device descriptions
   db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
-  update( pll_delays, const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
   
   // Update FED descriptions with new ticker thresholds
   if ( true ) {
     db_->resetFedDescriptions();
     const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
-    update( ticker_thresh, const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
+    update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
     db_->uploadFedDescriptions(false);
   }
   
@@ -67,42 +54,8 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::settings( map<uint32_t,uint32_t>& pll_delays,
-				       map<uint32_t,uint32_t>& ticker_thresh ) {
+void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
 
-  pll_delays.clear();
-  ticker_thresh.clear();
-
-  // Iterate through all channels and calc PLL delay per module
-  map<uint32_t,ApvTimingAnalysis>::const_iterator iter;
-  for ( iter = data_.begin(); iter != data_.end(); iter++ ) {
-    
-    // Check delay and tick height are valid
-    if ( iter->second.delay() > sistrip::maximum_ ) { continue; }
-    if ( iter->second.height() < 100. ) { continue; }
-    
-    // Create key specific to module
-    SiStripControlKey::ControlPath path = SiStripControlKey::path( iter->first );
-    //@@ change this to SiStripControlPath
-    uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ one partition only!!!
-					   path.fecSlot_,
-					   path.fecRing_,
-					   path.ccuAddr_,
-					   path.ccuChan_ );
-    
-    float delay = maxDelay_ - iter->second.delay();
-    pll_delays[key] = static_cast<uint32_t>( rint(delay*24./25.) );
-    ticker_thresh[key] = static_cast<uint32_t>( iter->second.base() + (2./3.)*iter->second.height() );
-    
-  }
-  
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& pll_delays,
-				     SiStripConfigDb::DeviceDescriptions& devices ) {
-  
   // Iterate through devices and update device descriptions
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
@@ -122,26 +75,57 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& pll_delays,
       continue;
     }
     
-
     // Construct key from device description
-    //@@ change this to SiStripControlPath!!!
     uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ one partition only!!!
 					   (*idevice)->getFecSlot(),
 					   (*idevice)->getRingSlot(),
 					   (*idevice)->getCcuAddress(),
 					   (*idevice)->getChannel() );
 
-    map<uint32_t,uint32_t>::const_iterator ipll = pll_delays.find( key );
-    if ( ipll != pll_delays.end() ) {
+    // Locate appropriate analysis object    
+    map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( key );
+    if ( iter != data_.end() ) { 
+      
+      // Check delay value
+      if ( iter->second.max() < 0. || iter->second.max() > sistrip::maximum_ ) { 
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected maximum time setting: "
+	     << iter->second.max() << endl;
+	continue;
+      }
+      
+      // Check delay and tick height are valid
+      if ( iter->second.delay() < 0. || 
+	   iter->second.delay() > sistrip::maximum_ ) { 
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected delay value: "
+	     << iter->second.delay() << endl;
+	continue; 
+      }
+      if ( iter->second.height() < 100. ) { 
+	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " Unexpected tick height: "
+	     << iter->second.height() << endl;
+	continue; 
+      }
+      
+      // Cast to retrieve appropriate description object
       pllDescription* desc = reinterpret_cast<pllDescription*>( *idevice );
+      if ( !desc ) {
+	cout << "[" << __PRETTY_FUNCTION__ << "]"
+	     << " NULL pointer to pllDescription!" << endl;
+	continue;
+      }
       
       cout << "[" << __PRETTY_FUNCTION__ << "]"
 	   << " Initial PLL settings (coarse/fine): " 
 	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
 	   << endl;
       
-      uint32_t coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + ipll->second ) / 24;
-      uint32_t fine   = ( desc->getDelayFine() + ipll->second ) % 24;
+      // Update PLL settings
+      uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
+      uint32_t coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + delay ) / 24;
+      uint32_t fine   = ( desc->getDelayFine() + delay ) % 24;
       desc->setDelayCoarse(coarse);
       desc->setDelayFine(fine);
       
@@ -166,8 +150,7 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& pll_delays,
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& ticker_thresh,
-				     SiStripConfigDb::FedDescriptions& feds ) {
+void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   
   // Iterate through feds and update fed descriptions
   SiStripConfigDb::FedDescriptions::iterator ifed;
@@ -177,6 +160,7 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& ticker_thresh
 
       // Retrieve FEC key from FED-FEC map
       uint32_t fec_key = 0;
+      cout << "fed id: " << (*ifed)->getFedId() << endl;
       uint32_t fed_key = SiStripReadoutKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
@@ -187,10 +171,12 @@ void ApvTimingHistosUsingDb::update( const map<uint32_t,uint32_t>& ticker_thresh
 	continue; //@@ write defaults here?... 
       }
       
-      map<uint32_t,uint32_t>::const_iterator iter = ticker_thresh.find( fec_key );
-      if ( iter != ticker_thresh.end() ) {
+      // Locate appropriate analysis object    
+      map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( fec_key );
+      if ( iter != data_.end() ) { 
+	uint32_t thresh = static_cast<uint32_t>( iter->second.base() + (2./3.)*iter->second.height() );
 	Fed9U::Fed9UAddress addr( ichan );
-	(*ifed)->setFrameThreshold( addr, iter->second );
+	(*ifed)->setFrameThreshold( addr, thresh );
       } else {
 	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"

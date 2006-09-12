@@ -25,13 +25,13 @@ class ApvTimingHistosUsingDb : public ApvTimingHistograms,
   
  private:
 
-  void settings( std::map<uint32_t,uint32_t>& pll_delays,
-		 std::map<uint32_t,uint32_t>& ticker_thresh );
+/*   void settings( std::map<uint32_t,uint32_t>& pll_delays, */
+/* 		 std::map<uint32_t,uint32_t>& ticker_thresh ); */
   
-  void update( const std::map<uint32_t,uint32_t>&,
+  void update( //const std::map<uint32_t,uint32_t>&,
 	       SiStripConfigDb::DeviceDescriptions& );
 
-  void update( const std::map<uint32_t,uint32_t>&,
+  void update( //const std::map<uint32_t,uint32_t>&,
 	       SiStripConfigDb::FedDescriptions& );
   
   
