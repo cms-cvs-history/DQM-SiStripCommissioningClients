@@ -9,7 +9,7 @@ PWD=$(echo "${PWD}" | sed 's/\//\\\//g')
 echo "The current directory is = $PWD"
 
 APPL="SiStripCommissioningClient"
-PACKAGE="SiStripCommissioningClients"
+PACKAGE="SiStripCommissioningDbClients"
 SCRAM_ARCH="slc3_ia32_gcc323"
 
 LIB="${LOCALRT}/lib/$SCRAM_ARCH/libDQM${PACKAGE}.so"
