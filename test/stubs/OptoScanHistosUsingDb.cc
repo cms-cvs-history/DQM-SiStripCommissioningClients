@@ -30,14 +30,12 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   // Update LLD descriptions with new bias/gain settings
-  cout << "Enter uploadToConfigDb" << endl;
   db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( LASERDRIVER );
-  cout << "DeviceDescriptions size: " << devices.size() << endl;
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
-  cout << "Leave uploadToConfigDb" << endl;
-  
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of LLD settings to DB finished!" << endl;
+
 }
 
 // -----------------------------------------------------------------------------

@@ -41,6 +41,7 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns) );
   db_->uploadFedConnections(false);
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of FED-FEC connections to DB finished!" << endl;
 
 }
 

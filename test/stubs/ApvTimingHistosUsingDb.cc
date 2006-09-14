@@ -28,27 +28,27 @@ ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
 /** */
 void ApvTimingHistosUsingDb::uploadToConfigDb() {
   cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
-
+  
   if ( !db_ ) {
     cerr << "[" << __PRETTY_FUNCTION__ << "]" 
 	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
 	 << endl;
     return;
   }
-
+  
   // Update PLL device descriptions
   db_->resetDeviceDescriptions();
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of PLL settings to DB finished!" << endl;
   
   // Update FED descriptions with new ticker thresholds
-  if ( true ) {
-    db_->resetFedDescriptions();
-    const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
-    update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
-    db_->uploadFedDescriptions(false);
-  }
+  db_->resetFedDescriptions();
+  const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+  update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  db_->uploadFedDescriptions(false);
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of ticker thresholds to DB finished!" << endl;
   
 }
 
@@ -161,6 +161,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // Retrieve FEC key from FED-FEC map
       uint32_t fec_key = 0;
       cout << "fed id: " << (*ifed)->getFedId() << endl;
+      cout << "fed hw id: " << (*ifed)->getFedHardwareId() << endl;
       uint32_t fed_key = SiStripReadoutKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }

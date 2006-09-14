@@ -42,6 +42,7 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
   db_->uploadFedDescriptions(false);
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of peds/noise constants to DB finished!" << endl;
 
 }
 

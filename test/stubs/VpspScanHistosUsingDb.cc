@@ -34,6 +34,7 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( APV25 );
   update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
   db_->uploadDeviceDescriptions(false);
+  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of VPSP settings to DB finished!" << endl;
 
 }
 
