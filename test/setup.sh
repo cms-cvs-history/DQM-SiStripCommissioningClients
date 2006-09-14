@@ -8,15 +8,15 @@ echo "The hostname is = $HOST"
 PWD=$(echo "${PWD}" | sed 's/\//\\\//g')
 echo "The current directory is = $PWD"
 
-APPL="SiStripCommissioningClient"
-PACKAGE="SiStripCommissioningDbClients"
+APPL="SiStripCommissioningDbClient"
+PACKAGE="DQMSiStripCommissioningDbClients"
 SCRAM_ARCH="slc3_ia32_gcc323"
 
-LIB="${LOCALRT}/lib/$SCRAM_ARCH/libDQM${PACKAGE}.so"
+LIB="${LOCALRT}/lib/$SCRAM_ARCH/lib${PACKAGE}.so"
 echo "Looking for the library $LIB"
 if [ ! -f $LIB ]; then
     echo "Library not found! Looking in afs release area..."
-    LIB="/afs/cern.ch/cms/Releases/CMSSW/prerelease/${CMSSW_VERSION}/lib/$SCRAM_ARCH/libDQM${PACKAGE}.so"
+    LIB="/afs/cern.ch/cms/Releases/CMSSW/prerelease/${CMSSW_VERSION}/lib/$SCRAM_ARCH/lib${PACKAGE}.so"
 else 
     echo "Found library!"
 fi
