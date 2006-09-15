@@ -47,8 +47,8 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  db_->uploadFedDescriptions(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of ticker thresholds to DB finished!" << endl;
+  //db_->uploadFedDescriptions(false); //@@ not working!!! needs to be checked
+  //cout << "[" << __PRETTY_FUNCTION__ << "] Upload of ticker thresholds to DB finished!" << endl;
   
 }
 
@@ -87,10 +87,10 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     if ( iter != data_.end() ) { 
       
       // Check delay value
-      if ( iter->second.max() < 0. || iter->second.max() > sistrip::maximum_ ) { 
+      if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Unexpected maximum time setting: "
-	     << iter->second.max() << endl;
+	     << iter->second.maxTime() << endl;
 	continue;
       }
       
