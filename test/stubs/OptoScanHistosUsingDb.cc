@@ -15,26 +15,32 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
   : OptoScanHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void OptoScanHistosUsingDb::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
+  if ( !db_ ) {
+    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+	 << endl;
+    return;
+  }
+
   // Update LLD descriptions with new bias/gain settings
   db_->resetDeviceDescriptions();
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( LASERDRIVER );
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  SiStripConfigDb::DeviceDescriptions devices;
+  db_->getDeviceDescriptions( devices, LASERDRIVER );
+  update( devices );
   db_->uploadDeviceDescriptions(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of LLD settings to DB finished!" << endl;
+  cout << "Upload of LLD settings to DB finished!" << endl;
 
 }
 

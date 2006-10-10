@@ -15,23 +15,21 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
   : FedCablingHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistosUsingDb::~FedCablingHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void FedCablingHistosUsingDb::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   if ( !db_ ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
 	 << endl;
     return;
   }
@@ -41,7 +39,7 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns) );
   db_->uploadFedConnections(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of FED-FEC connections to DB finished!" << endl;
+  cout << "Upload of FED-FEC connections to DB finished!" << endl;
 
 }
 

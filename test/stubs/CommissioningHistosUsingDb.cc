@@ -12,7 +12,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
 							uint32_t minor ) 
   : db_(0)
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 
   // Extract db connections params from CONFDB
   string login = "";
@@ -31,8 +31,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
   db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
   db_->openDbConnection();
   
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " SiStripConfigDB ptr: " << db_
+  cout << " SiStripConfigDB ptr: " << db_
        << " confdb: " << confdb
        << " login: " << login
        << " passwd: " << passwd
@@ -47,7 +46,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Destructing object..." << endl;
   if ( db_ ) {
     db_->closeDbConnection();
     delete db_;

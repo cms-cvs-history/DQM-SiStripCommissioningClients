@@ -16,23 +16,21 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
   : PedestalsHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void PedestalsHistosUsingDb::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
 
   if ( !db_ ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
 	 << endl;
     return;
   }
@@ -42,7 +40,7 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
   db_->uploadFedDescriptions(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of peds/noise constants to DB finished!" << endl;
+  cout << "Upload of peds/noise constants to DB finished!" << endl;
 
 }
 

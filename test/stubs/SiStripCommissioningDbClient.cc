@@ -57,8 +57,7 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
   else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unknown commissioning task!" << endl;
+    cerr << " Unknown commissioning task!" << endl;
   }
   
 }
@@ -68,8 +67,7 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
 void SiStripCommissioningDbClient::uploadToConfigDb() {
 
   if ( !histos_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to CommissioningHistograms!" << endl; 
+    cerr << " NULL pointer to CommissioningHistograms!" << endl; 
     return;
   }
   
@@ -80,11 +78,9 @@ void SiStripCommissioningDbClient::uploadToConfigDb() {
   
   if ( mui_ ) { 
     mui_->addCallback(action); 
-    cout << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " Scheduling this action..." << endl;
+    cout << " Scheduling this action..." << endl;
   } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to MonitorUserInterface!" << endl; 
+    cerr << " NULL pointer to MonitorUserInterface!" << endl; 
     return;
   }
   

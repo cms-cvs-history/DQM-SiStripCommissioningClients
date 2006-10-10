@@ -15,26 +15,32 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
   : VpspScanHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void VpspScanHistosUsingDb::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
+  if ( !db_ ) {
+    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+	 << endl;
+    return;
+  }
+
   // Update all APV device descriptions with new VPSP settings
   db_->resetDeviceDescriptions();
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( APV25 );
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  SiStripConfigDb::DeviceDescriptions devices;
+  db_->getDeviceDescriptions( devices, APV25 );
+  update( devices );
   db_->uploadDeviceDescriptions(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of VPSP settings to DB finished!" << endl;
+  cout << "Upload of VPSP settings to DB finished!" << endl;
 
 }
 

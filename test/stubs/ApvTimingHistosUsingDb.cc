@@ -15,40 +15,39 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
   : ApvTimingHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  cout << __func__ << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void ApvTimingHistosUsingDb::uploadToConfigDb() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
   
   if ( !db_ ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
+    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
 	 << endl;
     return;
   }
   
   // Update PLL device descriptions
   db_->resetDeviceDescriptions();
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions( PLL ); 
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  SiStripConfigDb::DeviceDescriptions devices;
+  db_->getDeviceDescriptions( devices, PLL ); 
+  update( devices );
   db_->uploadDeviceDescriptions(false);
-  cout << "[" << __PRETTY_FUNCTION__ << "] Upload of PLL settings to DB finished!" << endl;
+  cout << "Upload of PLL settings to DB finished!" << endl;
   
   // Update FED descriptions with new ticker thresholds
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  //db_->uploadFedDescriptions(false); //@@ not working!!! needs to be checked
-  //cout << "[" << __PRETTY_FUNCTION__ << "] Upload of ticker thresholds to DB finished!" << endl;
+  db_->uploadFedDescriptions(false);
+  cout << "Upload of ticker thresholds to DB finished!" << endl;
   
 }
 
