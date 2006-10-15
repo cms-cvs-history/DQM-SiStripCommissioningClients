@@ -61,16 +61,14 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected device type: " << (*idevice)->getDeviceType() << endl;
+      cerr << " Unexpected device type: " << (*idevice)->getDeviceType() << endl;
       continue;
     }
-
-    // Retrieve description
-    pllDescription* desc = reinterpret_cast<pllDescription*>( *idevice );
-    if ( desc ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unable to dynamic cast to pllDescription*" << endl;
+    
+    // Cast to retrieve appropriate description object
+    pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
+    if ( !desc ) {
+      cerr << " Unable to dynamic cast to pllDescription*" << endl;
       continue;
     }
     
@@ -87,8 +85,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       
       // Check delay value
       if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected maximum time setting: "
+	cerr << " Unexpected maximum time setting: "
 	     << iter->second.maxTime() << endl;
 	continue;
       }
@@ -96,28 +93,17 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       // Check delay and tick height are valid
       if ( iter->second.delay() < 0. || 
 	   iter->second.delay() > sistrip::maximum_ ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected delay value: "
+	cerr << " Unexpected delay value: "
 	     << iter->second.delay() << endl;
 	continue; 
       }
       if ( iter->second.height() < 100. ) { 
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unexpected tick height: "
+	cerr << " Unexpected tick height: "
 	     << iter->second.height() << endl;
 	continue; 
       }
       
-      // Cast to retrieve appropriate description object
-      pllDescription* desc = reinterpret_cast<pllDescription*>( *idevice );
-      if ( !desc ) {
-	cout << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " NULL pointer to pllDescription!" << endl;
-	continue;
-      }
-      
-      cout << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Initial PLL settings (coarse/fine): " 
+      cout << " Initial PLL settings (coarse/fine): " 
 	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
 	   << endl;
       
@@ -128,14 +114,12 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       desc->setDelayCoarse(coarse);
       desc->setDelayFine(fine);
       
-      cout << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Updated PLL settings (coarse/fine): " 
+      cout << " Updated PLL settings (coarse/fine): " 
 	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
 	   << endl;
       
     } else {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unable to find PLL settings for device with params FEC/slot/ring/CCU: " 
+      cerr << " Unable to find PLL settings for device with params FEC/slot/ring/CCU: " 
 	   << (*idevice)->getFecSlot() << "/"
 	   << (*idevice)->getRingSlot() << "/"
 	   << (*idevice)->getCcuAddress() << "/"
@@ -165,8 +149,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
       else {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unable to find FEC key for FED id/ch: "
+	cerr << " Unable to find FEC key for FED id/ch: "
 	     << (*ifed)->getFedId() << "/" << ichan << endl;
 	continue; //@@ write defaults here?... 
       }

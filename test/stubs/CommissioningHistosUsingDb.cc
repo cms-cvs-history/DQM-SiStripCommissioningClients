@@ -28,8 +28,15 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
   }
   
   // Create database interface
-  db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
-  db_->openDbConnection();
+  if ( login != "" && passwd != "" && path != "" && partition != "" ) {
+    db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
+    db_->openDbConnection();
+  } else {
+    cerr << "Unexpected value for database connection parameters!"
+	 << "confdb=" << confdb
+	 << " login/passwd@path=" << login << "/" << passwd << "@" << path
+	 << " partition=" << partition << endl;
+  }
   
   cout << " SiStripConfigDB ptr: " << db_
        << " confdb: " << confdb
