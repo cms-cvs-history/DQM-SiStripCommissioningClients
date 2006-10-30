@@ -12,6 +12,20 @@ var MAX_SLIDES = 20;
 var lastMatchIndex = -1;
 var firstMatchIndex = -1;
 
+/*
+ get the base url
+*/
+
+function getBaseURL()
+{
+  var app_url = getApplicationURL();
+  var index = app_url.lastIndexOf("/");
+  return app_url.substring(0, index)+"HistogramViewer?";
+}
+
+
+
+
 /* Wrapper function for constructing a request object. 
    Parameters: 
      <reqType>: The HTTP request type, such as GET or POST. 
@@ -96,7 +110,7 @@ function initReq(reqType, url, bool, respHandle) {
 window.onload=function() { 
   var queryString = 'command=filelist';
   //alert(window.location.href);
-  var url = BASE_URL+queryString; 
+  var url = getBaseURL()+queryString; 
   //alert("I call httpRequest "+url);
   httpRequest('GET', url, true, FillFileList); 
 } 

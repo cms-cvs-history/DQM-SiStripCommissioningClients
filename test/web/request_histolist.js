@@ -8,7 +8,7 @@ function RequestModuleList() {
   if (obj.selectedIndex>=0) 
   	 value =  obj.options[obj.selectedIndex].value;
   queryString += '&module='+value;
-    var url = BASE_URL+queryString; 
+    var url = getBaseURL()+queryString; 
 //     alert(" url = " + url);
     httpRequest("GET", url, true, FillModuleList);     
 }
@@ -22,7 +22,7 @@ function RequestHistoList() {
   if (obj.selectedIndex>=0) 
   	 value =  obj.options[obj.selectedIndex].value;
   queryString += '&module='+value;
-    var url = BASE_URL+queryString; 
+    var url = getBaseURL()+queryString; 
 //     alert(" url = " + url);
     httpRequest("GET", url, true, FillHistoList);     
 }

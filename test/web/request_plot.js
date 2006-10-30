@@ -89,8 +89,8 @@ function PlotSingleModuleHisto() {
     queryString += '&ref_file=' + ref_fname;
   }
  
-//  var url = BASE_URL+queryString+'&t='+Math.random();
-  var url = BASE_URL+queryString;
+//  var url = getBaseURL()+queryString+'&t='+Math.random();
+  var url = getBaseURL()+queryString;
   //alert(" url = " + url);  
   canvas.src = url;
 }  
@@ -118,7 +118,7 @@ function PlotSummaryHisto(){
     alert("Canvas is not defined!");
     return;
   }
-  var url = BASE_URL+queryString;
+  var url = getBaseURL()+queryString;
   alert(" url = " + url);  
 }
 
