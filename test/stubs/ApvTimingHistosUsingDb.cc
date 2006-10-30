@@ -1,6 +1,7 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include <iostream>
 
 using namespace std;
@@ -73,12 +74,12 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     }
     
     // Construct key from device description
-    uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ one partition only!!!
-					   (*idevice)->getFecSlot(),
-					   (*idevice)->getRingSlot(),
-					   (*idevice)->getCcuAddress(),
-					   (*idevice)->getChannel() );
-
+    uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ one partition only!!!
+				       (*idevice)->getFecSlot(),
+				       (*idevice)->getRingSlot(),
+				       (*idevice)->getCcuAddress(),
+				       (*idevice)->getChannel() );
+    
     // Locate appropriate analysis object    
     map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( key );
     if ( iter != data_.end() ) { 
@@ -145,7 +146,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       uint32_t fec_key = 0;
       cout << "fed id: " << (*ifed)->getFedId() << endl;
       cout << "fed hw id: " << (*ifed)->getFedHardwareId() << endl;
-      uint32_t fed_key = SiStripReadoutKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
+      uint32_t fed_key = SiStripFedKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
       else {
@@ -161,7 +162,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	Fed9U::Fed9UAddress addr( ichan );
 	(*ifed)->setFrameThreshold( addr, thresh );
       } else {
-	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Unable to find ticker thresholds for FED id/ch: " 
 	     << (*ifed)->getFedId() << "/"

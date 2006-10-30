@@ -1,13 +1,9 @@
 <use name=DQM/SiStripCommissioningClients>
 <use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripDetId>
 <use name=OnlineDB/SiStripConfigDb>
 <use name=boost>
 <use name=xdaq>
 <lib name=xgi>
-
-<Flags CXXFLAGS="-O0 -g -DDEBUG">
-CXXFLAGS := $(patsubst -O2,,$(CXXFLAGS))
 
 <library file="stubs/*.cc" name=DQMSiStripCommissioningDbClients>
 </library>

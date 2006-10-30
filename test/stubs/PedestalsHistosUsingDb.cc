@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include <iostream>
 
 using namespace std;
@@ -56,7 +56,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
       // Retrieve FEC key from FED-FEC map
       uint32_t fec_key = 0;
-      uint32_t fed_key = SiStripReadoutKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
+      uint32_t fed_key = SiStripFedKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
       else {
@@ -88,7 +88,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	}
       
       } else {
-	SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
+	SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
 	cerr << "[" << __PRETTY_FUNCTION__ << "]"
 	     << " Unable to find ticker thresholds for FED id/ch: " 
 	     << (*ifed)->getFedId() << "/"

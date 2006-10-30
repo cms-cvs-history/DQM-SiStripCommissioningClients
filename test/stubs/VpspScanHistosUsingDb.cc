@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
 
 using namespace std;
@@ -72,12 +72,12 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     uint16_t iapv  = ( desc->getAddress() - 0x20 ) % 2;
 
     // Construct key from device description
-    uint32_t key = SiStripControlKey::key( sistrip::invalid_,  //@@ FEC crate not used (?)
-					   (*idevice)->getFecSlot(),
-					   (*idevice)->getRingSlot(),
-					   (*idevice)->getCcuAddress(),
-					   (*idevice)->getChannel(),
-					   ichan );
+    uint32_t key = SiStripFecKey::key( sistrip::invalid_,  //@@ FEC crate not used (?)
+				       (*idevice)->getFecSlot(),
+				       (*idevice)->getRingSlot(),
+				       (*idevice)->getCcuAddress(),
+				       (*idevice)->getChannel(),
+				       ichan );
       
     // Iterate through all channels and extract LLD settings 
     map<uint32_t,VpspScanAnalysis>::const_iterator iter = data_.find( key );

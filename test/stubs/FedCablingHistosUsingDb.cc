@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
 
 using namespace std;
@@ -52,12 +52,12 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns ) {
     // If connections already exist, update
     SiStripConfigDb::FedConnections::iterator iconn;
     for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
-      uint32_t key = SiStripControlKey::key( sistrip::invalid_, //@@ one partition only!!!
-					     (*iconn)->getSlot(),
-					     (*iconn)->getRing(),
-					     (*iconn)->getCcu(),
-					     (*iconn)->getI2c(),
-					     ((*iconn)->getApv()-32)/2 );
+      uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ one partition only!!!
+					 (*iconn)->getSlot(),
+					 (*iconn)->getRing(),
+					 (*iconn)->getCcu(),
+					 (*iconn)->getI2c(),
+					 ((*iconn)->getApv()-32)/2 );
       map<uint32_t,FedCablingAnalysis>::const_iterator iter = data_.find( key );
       if ( iter != data_.end() ) { 
 	(*iconn)->setFedId( iter->second.fedId() );
