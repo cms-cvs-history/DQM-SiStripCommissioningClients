@@ -16,13 +16,17 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
   : ApvTimingHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
-  cout << __func__ << " Destructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -30,8 +34,9 @@ ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
 void ApvTimingHistosUsingDb::uploadToConfigDb() {
   
   if ( !db_ ) {
-    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
-	 << endl;
+    cerr << endl // edm::LogWarning(mlDqmClient_) 
+	 << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload...";
     return;
   }
   
@@ -41,14 +46,18 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   db_->getDeviceDescriptions( devices, PLL ); 
   update( devices );
   db_->uploadDeviceDescriptions(false);
-  cout << "Upload of PLL settings to DB finished!" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+       << "Upload of PLL settings to DB finished!";
   
   // Update FED descriptions with new ticker thresholds
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   db_->uploadFedDescriptions(false);
-  cout << "Upload of ticker thresholds to DB finished!" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+       << "Upload of ticker thresholds to DB finished!";
   
 }
 
@@ -62,14 +71,18 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) {
-      cerr << " Unexpected device type: " << (*idevice)->getDeviceType() << endl;
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Unexpected device type: " << (*idevice)->getDeviceType();
       continue;
     }
     
     // Cast to retrieve appropriate description object
     pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
     if ( !desc ) {
-      cerr << " Unable to dynamic cast to pllDescription*" << endl;
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Unable to dynamic cast to pllDescription*";
       continue;
     }
     
@@ -86,28 +99,35 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       
       // Check delay value
       if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
-	cerr << " Unexpected maximum time setting: "
-	     << iter->second.maxTime() << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unexpected maximum time setting: "
+	     << iter->second.maxTime();
 	continue;
       }
       
       // Check delay and tick height are valid
       if ( iter->second.delay() < 0. || 
 	   iter->second.delay() > sistrip::maximum_ ) { 
-	cerr << " Unexpected delay value: "
-	     << iter->second.delay() << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unexpected delay value: "
+	     << iter->second.delay();
 	continue; 
       }
       if ( iter->second.height() < 100. ) { 
-	cerr << " Unexpected tick height: "
-	     << iter->second.height() << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unexpected tick height: "
+	     << iter->second.height();
 	continue; 
       }
       
-      cout << " Initial PLL settings (coarse/fine): " 
-	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
-	   << endl;
-      
+      cout << endl // LogTrace(mlDqmClient_) 
+	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Initial PLL settings (coarse/fine): " 
+	   << desc->getDelayCoarse() << "/" << desc->getDelayFine();
+	
       // Update PLL settings
       uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
       uint32_t coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + delay ) / 24;
@@ -115,17 +135,19 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       desc->setDelayCoarse(coarse);
       desc->setDelayFine(fine);
       
-      cout << " Updated PLL settings (coarse/fine): " 
-	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
-	   << endl;
+      cout << endl // LogTrace(mlDqmClient_) 
+	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Updated PLL settings (coarse/fine): " 
+	   << desc->getDelayCoarse() << "/" << desc->getDelayFine();
       
     } else {
-      cerr << " Unable to find PLL settings for device with params FEC/slot/ring/CCU: " 
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Unable to find PLL settings for device with params FEC/slot/ring/CCU: " 
 	   << (*idevice)->getFecSlot() << "/"
 	   << (*idevice)->getRingSlot() << "/"
 	   << (*idevice)->getCcuAddress() << "/"
-	   << (*idevice)->getChannel()
-	   << endl;
+	   << (*idevice)->getChannel();
     }
 
   }
@@ -144,14 +166,14 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
       // Retrieve FEC key from FED-FEC map
       uint32_t fec_key = 0;
-      cout << "fed id: " << (*ifed)->getFedId() << endl;
-      cout << "fed hw id: " << (*ifed)->getFedHardwareId() << endl;
       uint32_t fed_key = SiStripFedKey::key( static_cast<uint16_t>((*ifed)->getFedId()), ichan );
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
       else {
-	cerr << " Unable to find FEC key for FED id/ch: "
-	     << (*ifed)->getFedId() << "/" << ichan << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unable to find FEC key for FED id/ch: "
+	     << (*ifed)->getFedId() << "/" << ichan;
 	continue; //@@ write defaults here?... 
       }
       
@@ -163,7 +185,8 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	(*ifed)->setFrameThreshold( addr, thresh );
       } else {
 	SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	     << " Unable to find ticker thresholds for FED id/ch: " 
 	     << (*ifed)->getFedId() << "/"
 	     << ichan << "/"
@@ -173,8 +196,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	     << path.fecRing_ << "/"
 	     << path.ccuAddr_ << "/"
 	     << path.ccuChan_ << "/"
-	     << path.channel_
-	     << endl;
+	     << path.channel_;
       }
     }
   }

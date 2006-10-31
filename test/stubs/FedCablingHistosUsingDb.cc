@@ -15,13 +15,17 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
   : FedCablingHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+       << "[FedCablingHistosUsingDb::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistosUsingDb::~FedCablingHistosUsingDb() {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+       << "[FedCablingHistosUsingDb::" << __func__ << "]"
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -29,8 +33,9 @@ FedCablingHistosUsingDb::~FedCablingHistosUsingDb() {
 void FedCablingHistosUsingDb::uploadToConfigDb() {
   
   if ( !db_ ) {
-    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
-	 << endl;
+    cerr << endl // edm::LogWarning(mlDqmClient_)
+	 << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload...";
     return;
   }
   
@@ -39,7 +44,9 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns) );
   db_->uploadFedConnections(false);
-  cout << "Upload of FED-FEC connections to DB finished!" << endl;
+  cout << endl // LogTrace(mlDqmClient_)
+       << "[FedCablingHistosUsingDb::" << __func__ << "]"
+       << "Upload of FED-FEC connections to DB finished!";
 
 }
 
@@ -63,19 +70,21 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns ) {
 	(*iconn)->setFedId( iter->second.fedId() );
 	(*iconn)->setFedChannel( iter->second.fedCh() );
       } else {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	cerr << endl // edm::LogWarning(mlDqmClient_)
+	     << "[FedCablingHistosUsingDb::" << __func__ << "]"
 	     << " Unable to find FED connections info for device with params FEC/slot/ring/CCU: " 
 	     << (*iconn)->getSlot() << "/"
 	     << (*iconn)->getRing() << "/"
 	     << (*iconn)->getCcu() << "/"
 	     << (*iconn)->getI2c() << "/"
-	     << ((*iconn)->getApv()-32)/2
-	     << endl;
+	     << ((*iconn)->getApv()-32)/2;
       }
     } 
     
   } else {
-    cout << "NO CONNECTIONS OBJECTS! WHAT NOW???" << endl;
+    cout << endl // LogTrace(mlDqmClient_)
+	 << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	 << " NO CONNECTIONS OBJECTS! WHAT NOW???";
   }
   
 }

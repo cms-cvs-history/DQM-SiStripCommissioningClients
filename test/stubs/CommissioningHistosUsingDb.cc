@@ -1,8 +1,10 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -12,7 +14,9 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
 							uint32_t minor ) 
   : db_(0)
 {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Constructing object...";
 
   // Extract db connections params from CONFDB
   string login = "";
@@ -32,30 +36,35 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
     db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
     db_->openDbConnection();
   } else {
-    cerr << "Unexpected value for database connection parameters!"
-	 << "confdb=" << confdb
+    cerr << endl // edm::LogWarning(mlDqmClient_) 
+	 << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	 << " Unexpected value for database connection parameters!"
+	 << " confdb=" << confdb
 	 << " login/passwd@path=" << login << "/" << passwd << "@" << path
-	 << " partition=" << partition << endl;
+	 << " partition=" << partition;
   }
   
-  cout << " SiStripConfigDB ptr: " << db_
+  cout << endl // edm::LogWarning(mlDqmClient_) 
+       << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " SiStripConfigDB ptr: " << db_
        << " confdb: " << confdb
        << " login: " << login
        << " passwd: " << passwd
        << " path: " << path
        << " partition: " << partition
        << " major: " << major
-       << " minor: " << minor
-       << endl;
+       << " minor: " << minor;
 
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
-  cout << __func__ << " Destructing object..." << endl;
   if ( db_ ) {
     db_->closeDbConnection();
     delete db_;
   }
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Destructing object...";
 }

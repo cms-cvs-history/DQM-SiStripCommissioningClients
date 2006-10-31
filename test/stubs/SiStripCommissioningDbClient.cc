@@ -7,6 +7,7 @@
 #include "DQM/SiStripCommissioningClients/test/stubs/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningClients/test/stubs/PedestalsHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "xdata/include/xdata/UnsignedLong.h"
 #include "xdata/include/xdata/String.h"
 #include <SealBase/Callback.h>
@@ -15,6 +16,7 @@
 XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningDbClient);
 
 using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -25,6 +27,9 @@ SiStripCommissioningDbClient::SiStripCommissioningDbClient( xdaq::ApplicationStu
     major_(0),
     minor_(0)
 {
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[SiStripCommissioningDbClient::" << __func__ << "]"
+       << " Constructing object...";
 
   // Retrieve database configuration parameters
   xdata::InfoSpace *sp = getApplicationInfoSpace();
@@ -57,7 +62,9 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
   else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;
-    cerr << " Unknown commissioning task!" << endl;
+    cerr << endl // edm::LogWarning(mlDqmClient_)
+	 << "[SiStripCommissioningDbClient::" << __func__ << "]"
+	 << " Unknown commissioning task!";
   }
   
 }
@@ -67,7 +74,9 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
 void SiStripCommissioningDbClient::uploadToConfigDb() {
 
   if ( !histos_ ) { 
-    cerr << " NULL pointer to CommissioningHistograms!" << endl; 
+    cerr << endl // edm::LogWarning(mlDqmClient_)
+	 << "[SiStripCommissioningDbClient::" << __func__ << "]"
+	 << " NULL pointer to CommissioningHistograms!";
     return;
   }
   
@@ -77,10 +86,14 @@ void SiStripCommissioningDbClient::uploadToConfigDb() {
 				 ); //@@ no arguments
   
   if ( mui_ ) { 
+    cout << endl // LogTrace(mlDqmClient_)
+	 << "[SiStripCommissioningDbClient::" << __func__ << "]"
+	 << " Scheduling this action...";
     mui_->addCallback(action); 
-    cout << " Scheduling this action..." << endl;
   } else { 
-    cerr << " NULL pointer to MonitorUserInterface!" << endl; 
+    cerr << endl // edm::LogWarning(mlDqmClient_)
+	 << "[SiStripCommissioningDbClient::" << __func__ << "]"
+	 << " NULL pointer to MonitorUserInterface!"; 
     return;
   }
   

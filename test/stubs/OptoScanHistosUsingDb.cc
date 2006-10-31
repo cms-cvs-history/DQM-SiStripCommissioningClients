@@ -15,13 +15,17 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
   : OptoScanHistograms( mui ),
     CommissioningHistosUsingDb( confdb, partition, major, minor )
 {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistosUsingDb::" << __func__ << "]"
+       << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
-  cout << __func__ << " Destructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistosUsingDb::" << __func__ << "]"
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -29,8 +33,9 @@ OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
 void OptoScanHistosUsingDb::uploadToConfigDb() {
   
   if ( !db_ ) {
-    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
-	 << endl;
+    cerr << endl // edm::LogWarning(mlDqmClient_) 
+	 << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload...";
     return;
   }
 
@@ -40,7 +45,9 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   db_->getDeviceDescriptions( devices, LASERDRIVER );
   update( devices );
   db_->uploadDeviceDescriptions(false);
-  cout << "Upload of LLD settings to DB finished!" << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[OptoScanHistosUsingDb::" << __func__ << "]"
+       << "Upload of LLD settings to DB finished!";
 
 }
 
@@ -54,8 +61,9 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     
     // Check device type
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected device type: " << (*idevice)->getDeviceType() << endl;
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	   << " Unexpected device type: " << (*idevice)->getDeviceType();
       continue;
     }
     
@@ -73,8 +81,9 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       // Retrieve description
       laserdriverDescription* desc = reinterpret_cast<laserdriverDescription*>( *idevice );
       if ( desc ) {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unable to dynamic cast to laserdriverDescription*" << endl;
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	     << " Unable to dynamic cast to laserdriverDescription*";
 	continue;
       }
       
@@ -82,29 +91,29 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( key );
       if ( iter != data_.end() ) {
 
-	cout << "[" << __PRETTY_FUNCTION__ << "]"
+	cout << endl // LogTrace(mlDqmClient_) 
+	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	     << " Initial bias/gain settings for LLD channel " << ichan << ": " 
-	     << desc->getGain(ichan) << "/" << desc->getBias(ichan)
-	     << endl;
+	     << desc->getGain(ichan) << "/" << desc->getBias(ichan);
 
 	uint16_t gain = iter->second.gain();
 	desc->setGain( ichan, gain );
 	desc->setBias( ichan, iter->second.bias()[gain] );
 	
-	cout << "[" << __PRETTY_FUNCTION__ << "]"
+	cout << endl // LogTrace(mlDqmClient_) 
+	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	     << " Updated bias/gain settings for LLD channel " << ichan << ": " 
-	     << desc->getGain(ichan) << "/" << desc->getBias(ichan)
-	     << endl;
+	     << desc->getGain(ichan) << "/" << desc->getBias(ichan);
       
       } else {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	     << " Unable to find PLL settings for device with params FEC/slot/ring/CCU/LLD channel: " 
 	     << (*idevice)->getFecSlot() << "/"
 	     << (*idevice)->getRingSlot() << "/"
 	     << (*idevice)->getCcuAddress() << "/"
 	     << (*idevice)->getChannel()
-	     << ichan
-	     << endl;
+	     << ichan;
       }
       
     }
