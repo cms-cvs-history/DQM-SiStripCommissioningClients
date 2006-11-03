@@ -109,7 +109,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     if ( !conn ) { conn = new FedChannelConnectionDescription(); }
     else {
       uint16_t ichan = sistrip::invalid_;
-      if ( conn->getApv() ) { ichan = static_cast<uint16_t>((conn->getApv()-32)/2; }
+      if ( conn->getApv() ) { ichan = static_cast<uint16_t>((conn->getApv()-32)/2); }
       cerr << endl // edm::LogWarning(mlDqmClient_)
 	   << "[FedCablingHistosUsingDb::" << __func__ << "]"
 	   << " FedChannelConnectionDescription already exists for"
