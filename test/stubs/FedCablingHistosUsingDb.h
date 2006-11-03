@@ -15,18 +15,18 @@ class FedCablingHistosUsingDb : public FedCablingHistograms,
  public:
   
   FedCablingHistosUsingDb( MonitorUserInterface*,
-			   std::string confdb,
-			   std::string partition,
-			   uint32_t major,
-			   uint32_t minor );
+			   const DbParams& );
   virtual ~FedCablingHistosUsingDb();
   
   virtual void uploadToConfigDb();
   
  private:
   
-  void update( SiStripConfigDb::FedConnections& );
+  void update( SiStripConfigDb::FedConnections&,
+	       const SiStripConfigDb::DeviceDescriptions&, 
+	       const SiStripConfigDb::DcuDetIdMap& );
   
+  void update( SiStripConfigDb::FedDescriptions& );
   
 };
 
