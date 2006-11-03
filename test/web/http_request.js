@@ -1,7 +1,7 @@
 var request = null; 
 //var BASE_URL = "http://localhost/cgi-bin/ajax/HistogramViewer.exe?";
 //var BASE_URL = "http://cdftest.cnaf.infn.it:8081/cgi-bin/cms/ajax/HistogramViewer.exe?";
-var BASE_URL = "http://lxcmsf1.cern.ch:1977/urn:xdaq-application:lid=15/HistogramViewer?"
+var BASE_URL = "http://cmstkint09.cern.ch:1977/urn:xdaq-application:lid=15/HistogramViewer?"
 var canvasList = new Array();
 var slideList = new Array();
 var slideShowSpeed = 5000;
@@ -18,9 +18,10 @@ var firstMatchIndex = -1;
 
 function getBaseURL()
 {
-  var app_url = getApplicationURL();
-  var index = app_url.lastIndexOf("/");
-  return app_url.substring(0, index)+"HistogramViewer?";
+//  var app_url = getApplicationURL();
+//  var index = app_url.lastIndexOf("/");
+//  return app_url.substring(0, index)+"urn:xdaq-application:lid=15/HistogramViewer?";
+   return BASE_URL;
 }
 
 
@@ -111,7 +112,7 @@ window.onload=function() {
   var queryString = 'command=filelist';
   //alert(window.location.href);
   var url = getBaseURL()+queryString; 
-  //alert("I call httpRequest "+url);
+//  alert("I call httpRequest "+url);
   httpRequest('GET', url, true, FillFileList); 
 } 
 document.write('<script src="/temporary/web/request_fname.js"><\/script>');
