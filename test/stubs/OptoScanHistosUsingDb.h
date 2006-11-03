@@ -15,10 +15,7 @@ class OptoScanHistosUsingDb : public OptoScanHistograms,
  public:
   
   OptoScanHistosUsingDb( MonitorUserInterface*,
-			 std::string confdb,
-			 std::string partition,
-			 uint32_t major,
-			 uint32_t minor );
+			 const DbParams& );
   virtual ~OptoScanHistosUsingDb();
 
   virtual void uploadToConfigDb();

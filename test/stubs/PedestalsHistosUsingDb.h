@@ -14,10 +14,7 @@ class PedestalsHistosUsingDb : public PedestalsHistograms,
  public:
   
   PedestalsHistosUsingDb( MonitorUserInterface*,
-			  std::string confdb,
-			  std::string partition,
-			  uint32_t major,
-			  uint32_t minor );
+			  const DbParams& );
   virtual ~PedestalsHistosUsingDb();
 
   virtual void uploadToConfigDb();

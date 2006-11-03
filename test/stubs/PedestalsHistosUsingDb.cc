@@ -9,12 +9,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
-					      string confdb,
-					      string partition,
-					      uint32_t major,
-					      uint32_t minor )
+						const DbParams& params )
   : PedestalsHistograms( mui ),
-    CommissioningHistosUsingDb( confdb, partition, major, minor )
+    CommissioningHistosUsingDb( params )
 {
   cout << __func__ << " Constructing object..." << endl;
 }

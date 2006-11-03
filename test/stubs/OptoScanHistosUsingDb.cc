@@ -8,12 +8,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
-					      string confdb,
-					      string partition,
-					      uint32_t major,
-					      uint32_t minor )
+					      const DbParams& params )
   : OptoScanHistograms( mui ),
-    CommissioningHistosUsingDb( confdb, partition, major, minor )
+    CommissioningHistosUsingDb( params )
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"

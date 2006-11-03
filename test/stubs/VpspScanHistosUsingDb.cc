@@ -8,12 +8,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
-					      string confdb,
-					      string partition,
-					      uint32_t major,
-					      uint32_t minor )
+					      const DbParams& params )
   : VpspScanHistograms( mui ),
-    CommissioningHistosUsingDb( confdb, partition, major, minor )
+    CommissioningHistosUsingDb( params )
 {
   cout << __func__ << " Constructing object..." << endl;
 }

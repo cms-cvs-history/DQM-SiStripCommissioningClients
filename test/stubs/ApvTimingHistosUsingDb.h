@@ -15,10 +15,7 @@ class ApvTimingHistosUsingDb : public ApvTimingHistograms,
  public:
   
   ApvTimingHistosUsingDb( MonitorUserInterface*,
-			  std::string confdb,
-			  std::string partition,
-			  uint32_t major,
-			  uint32_t minor );
+			  const DbParams& );
   virtual ~ApvTimingHistosUsingDb();
 
   virtual void uploadToConfigDb();

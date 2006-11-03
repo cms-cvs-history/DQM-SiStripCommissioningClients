@@ -15,7 +15,7 @@ class SiStripCommissioningDbClient : public SiStripCommissioningClient {
   
   SiStripCommissioningDbClient( xdaq::ApplicationStub* );
   virtual ~SiStripCommissioningDbClient();
-
+  
   /** */
   virtual void uploadToConfigDb();
 
@@ -25,6 +25,7 @@ class SiStripCommissioningDbClient : public SiStripCommissioningClient {
   virtual void createHistograms( const sistrip::Task& task ) const;
   
   // Extract db connections params
+  xdata::Boolean usingDb_;
   xdata::String confdb_;
   xdata::String partition_;
   xdata::UnsignedLong major_;

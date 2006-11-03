@@ -14,10 +14,7 @@ class VpspScanHistosUsingDb : public VpspScanHistograms,
  public:
   
   VpspScanHistosUsingDb( MonitorUserInterface*,
-			 std::string confdb,
-			 std::string partition,
-			 uint32_t major,
-			 uint32_t minor );
+			 const DbParams& );
   virtual ~VpspScanHistosUsingDb();
 
   virtual void uploadToConfigDb();

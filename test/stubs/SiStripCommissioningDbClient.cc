@@ -22,6 +22,7 @@ using namespace sistrip;
 /** */
 SiStripCommissioningDbClient::SiStripCommissioningDbClient( xdaq::ApplicationStub* stub ) 
   : SiStripCommissioningClient( stub ),
+    usingDb_(true),
     confdb_(""),
     partition_(""),
     major_(0),
@@ -33,6 +34,7 @@ SiStripCommissioningDbClient::SiStripCommissioningDbClient( xdaq::ApplicationStu
 
   // Retrieve database configuration parameters
   xdata::InfoSpace *sp = getApplicationInfoSpace();
+  sp->fireItemAvailable( "usingDb", &usingDb_ );
   sp->fireItemAvailable( "confdb", &confdb_ );
   sp->fireItemAvailable( "partition", &partition_ );
   sp->fireItemAvailable( "major", &major_ );
@@ -52,13 +54,21 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::Task& task )
   // Check if object already exists
   if ( histos_ ) { return; }
   
+  // Create temporary database parameters object 
+  CommissioningHistosUsingDb::DbParams params;
+  params.usingDb_ = usingDb_.value_;
+  params.confdb_ = confdb_.value_;
+  params.partition_ = partition_.value_;
+  params.major_ = major_.value_;
+  params.minor_ = minor_.value_;
+  
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
-  else if ( task == sistrip::FED_CABLING )    { histos_ = new FedCablingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
-  //else if ( task == sistrip::FED_TIMING )     { histos_ = new FedTimingHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
-  else if ( task == sistrip::PEDESTALS )      { histos_ = new PedestalsHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
-  else if ( task == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
-  else if ( task == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistosUsingDb( mui_, confdb_.value_, partition_.value_, major_.value_, minor_.value_ ); }
+  if      ( task == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, params ); }
+  else if ( task == sistrip::FED_CABLING )    { histos_ = new FedCablingHistosUsingDb( mui_, params ); }
+  //else if ( task == sistrip::FED_TIMING )     { histos_ = new FedTimingHistosUsingDb( mui_, params ); }
+  else if ( task == sistrip::PEDESTALS )      { histos_ = new PedestalsHistosUsingDb( mui_, params ); }
+  else if ( task == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistosUsingDb( mui_, params ); }
+  else if ( task == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistosUsingDb( mui_, params ); }
   else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_TASK ) {
     histos_ = 0;

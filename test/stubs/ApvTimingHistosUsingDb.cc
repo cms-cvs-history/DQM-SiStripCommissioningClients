@@ -9,12 +9,9 @@ using namespace std;
 // -----------------------------------------------------------------------------
 /** */
 ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
-						string confdb,
-						string partition,
-						uint32_t major,
-						uint32_t minor )
+						const DbParams& params )
   : ApvTimingHistograms( mui ),
-    CommissioningHistosUsingDb( confdb, partition, major, minor )
+    CommissioningHistosUsingDb( params )
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
@@ -177,7 +174,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	continue; //@@ write defaults here?... 
       }
       
-      // Locate appropriate analysis object    
+      // Locate appropriate analysis object 
       map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
 	uint32_t thresh = static_cast<uint32_t>( iter->second.base() + (2./3.)*iter->second.height() );
@@ -187,10 +184,11 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
 	cerr << endl // edm::LogWarning(mlDqmClient_) 
 	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	     << " Unable to find ticker thresholds for FED id/ch: " 
+	     << " Unable to find ticker thresholds for FedKey/Id/Ch: " 
+	     << hex << setw(8) << setfill('0') << fed_key << dec << "/"
 	     << (*ifed)->getFedId() << "/"
-	     << ichan << "/"
-	     << " and device with at FEC/slot/ring/CCU/LLD channel: " 
+	     << ichan
+	     << " and device with FEC/slot/ring/CCU/LLDchan: " 
 	     << path.fecCrate_ << "/"
 	     << path.fecSlot_ << "/"
 	     << path.fecRing_ << "/"
@@ -198,12 +196,8 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	     << path.ccuChan_ << "/"
 	     << path.channel_;
       }
+
     }
   }
   
 }
-
-
-
-
-

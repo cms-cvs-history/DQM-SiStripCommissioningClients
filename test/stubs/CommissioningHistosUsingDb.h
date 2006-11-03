@@ -9,11 +9,23 @@ class SiStripConfigDb;
 class CommissioningHistosUsingDb {
   
  public:
+
+  /** */ 
+  class DbParams {
+  public:
+    bool usingDb_;
+    std::string confdb_;
+    std::string partition_;
+    uint32_t major_;
+    uint32_t minor_;
+    DbParams();
+    ~DbParams() {;}
+  };
   
-  CommissioningHistosUsingDb( std::string confdb,
-			      std::string partition,
-			      uint32_t major,
-			      uint32_t minor );
+  /** */ 
+  CommissioningHistosUsingDb( const DbParams& );
+  
+  /** */ 
   virtual ~CommissioningHistosUsingDb();
   
  protected:

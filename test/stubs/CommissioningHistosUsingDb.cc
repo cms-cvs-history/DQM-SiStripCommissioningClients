@@ -8,52 +8,68 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::CommissioningHistosUsingDb( string confdb,
-							string partition,
-							uint32_t major,
-							uint32_t minor ) 
+CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
   : db_(0)
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[CommissioningHistosUsingDb::" << __func__ << "]"
        << " Constructing object...";
 
-  // Extract db connections params from CONFDB
-  string login = "";
-  string passwd = "";
-  string path = "";
-  uint32_t ipass = confdb.find("/");
-  uint32_t ipath = confdb.find("@");
-  if ( ( ipass != std::string::npos ) && 
-       ( ipath != std::string::npos ) ) {
-    login = confdb.substr( 0, ipass );
-    passwd = confdb.substr( ipass+1, ipath-ipass-1 );
-    path = confdb.substr( ipath+1, confdb.size() );
-  }
+  if ( params.usingDb_ ) {
+
+    // Extract db connections params from CONFDB
+    string login = "";
+    string passwd = "";
+    string path = "";
+    uint32_t ipass = params.confdb_.find("/");
+    uint32_t ipath = params.confdb_.find("@");
+    if ( ( ipass != std::string::npos ) && 
+	 ( ipath != std::string::npos ) ) {
+      login = params.confdb_.substr( 0, ipass );
+      passwd = params.confdb_.substr( ipass+1, ipath-ipass-1 );
+      path = params.confdb_.substr( ipath+1, params.confdb_.size() );
+    }
   
-  // Create database interface
-  if ( login != "" && passwd != "" && path != "" && partition != "" ) {
-    db_ = new SiStripConfigDb( login, passwd, path, partition, major, minor );
-    db_->openDbConnection();
-  } else {
-    cerr << endl // edm::LogWarning(mlDqmClient_) 
+    // Create database interface
+    if ( login != "" && passwd != "" && path != "" && params.partition_ != "" ) {
+      db_ = new SiStripConfigDb( login, 
+				 passwd, 
+				 path, 
+				 params.partition_, 
+				 params.major_, 
+				 params.minor_ );
+      db_->openDbConnection();
+    } else {
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	   << " Unexpected value for database connection parameters!"
+	   << " confdb=" << params.confdb_
+	   << " login/passwd@path=" << login << "/" << passwd << "@" << path
+	   << " partition=" << params.partition_;
+    }
+    
+    cout << endl // edm::LogWarning(mlDqmClient_) 
 	 << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	 << " Unexpected value for database connection parameters!"
-	 << " confdb=" << confdb
-	 << " login/passwd@path=" << login << "/" << passwd << "@" << path
-	 << " partition=" << partition;
+	 << " Using a database account!"
+	 << " SiStripConfigDB ptr: " << db_
+	 << " confdb: " << params.confdb_
+	 << " login: " << login
+	 << " passwd: " << passwd
+	 << " path: " << path
+	 << " partition: " << params.partition_
+	 << " major: " << params.major_
+	 << " minor: " << params.minor_;
+    
+  } else {
+    
+    db_ = new SiStripConfigDb( "", "", "", "" );
+    
+    cout << endl // edm::LogWarning(mlDqmClient_) 
+	 << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	 << " Using XML files!"
+	 << " SiStripConfigDB ptr: " << db_;
+
   }
-  
-  cout << endl // edm::LogWarning(mlDqmClient_) 
-       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " SiStripConfigDB ptr: " << db_
-       << " confdb: " << confdb
-       << " login: " << login
-       << " passwd: " << passwd
-       << " path: " << path
-       << " partition: " << partition
-       << " major: " << major
-       << " minor: " << minor;
 
 }
 
@@ -68,3 +84,13 @@ CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
        << "[CommissioningHistosUsingDb::" << __func__ << "]"
        << " Destructing object...";
 }
+
+// -----------------------------------------------------------------------------
+/** */
+CommissioningHistosUsingDb::DbParams::DbParams() :
+  usingDb_(true),
+  confdb_(""),
+  partition_(""),
+  major_(0),
+  minor_(0) 
+{;}
