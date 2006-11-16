@@ -1,9 +1,0 @@
-eval `scramv1 runtime -sh`
-xdaq.exe -h _host_ -p _port_ -e profile.xml &
-if ! perl webPingXDAQ.pl _host_ _port_ 10
-then
-  echo "executive didn't start properly"
-else
-  perl sendCmdToApp.pl _host_ _port_ client.xml
-fi
-
