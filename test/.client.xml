@@ -24,8 +24,8 @@
                   <properties xmlns="urn:xdaq-application:_appl_" xsi:type="soapenc:Struct">
                     <serverHost xsi:type="xsd:string">localhost</serverHost>
                     <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
-                    <confdb xsi:type="xsd:string">cms_testBeam/May2004@cmsr</confdb>
-                    <partition xsi:type="xsd:string">TEST_241006</partition>
+                    <confdb xsi:type="xsd:string">null/null@null</confdb>
+                    <partition xsi:type="xsd:string">null</partition>
                   </properties>
                 </xc:Application>
 

@@ -6,7 +6,7 @@
         <xp:Application class="Executive" id="0" group="startup" service="executive" network="local">
                 <properties xmlns="urn:xdaq-application:Executive" xsi:type="soapenc:Struct">
                         <logUrl xsi:type="xsd:string">console</logUrl>
-                        <logLevel xsi:type="xsd:string">DEBUG</logLevel>
+                        <logLevel xsi:type="xsd:string">INFO</logLevel>
                 </properties>
         </xp:Application>
 

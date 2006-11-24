@@ -1,6 +1,6 @@
 #!/bin/bash
 
-eval `scramv1 ru -sh`
+eval `/afs/cern.ch/cms/sw/bin/scramv1 runtime -sh`
 
 HOST=$(echo `/bin/hostname` | sed 's/\//\\\//g')
 echo "The hostname is = $HOST"
@@ -21,6 +21,8 @@ else
     echo "Found library!"
 fi
 
+DIR=$CMSSW_BASE/src/DQM/SiStripCommissioningClients/test
+
 LIBRARY=$(echo "$LIB" | sed 's/\//\\\//g')
 echo $LIBRARY
 
@@ -34,12 +36,14 @@ if [ -e startClient ]; then
     rm startClient
 fi
 
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" .profile.xml > profile.xml
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" -e "s/_appl_/${APPL}/g" .client.xml > client.xml 
-sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" .startClient > startClient
+cp $DIR/style.css .
+cp $DIR/WebLib.js .
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" $DIR/.profile.xml > profile.xml
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" -e "s/_appl_/${APPL}/g" $DIR/.client.xml > client.xml 
+sed -e "s/_port_/1977/g" -e "s/_host_/${HOST}/g" -e "s/_pwd_/${PWD}/g" -e "s/_lib_/${LIBRARY}/g" $DIR/.startClient > startClient
 
-chmod 751 profile.xml
-chmod 751 client.xml
-chmod 751 startClient
+chmod 755 profile.xml
+chmod 755 client.xml
+chmod 755 startClient
 
 
