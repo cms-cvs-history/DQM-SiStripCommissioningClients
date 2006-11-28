@@ -1,6 +1,6 @@
 var request = null; 
-//var BASE_URL = "http://localhost/cgi-bin/ajax/HistogramViewer.exe?";
-//var BASE_URL = "http://cdftest.cnaf.infn.it:8081/cgi-bin/cms/ajax/HistogramViewer.exe?";
+// var BASE_URL = "http://localhost/cgi-bin/ajax/HistogramViewer.exe?";
+// var BASE_URL = "http://cdftest.cnaf.infn.it:8081/cgi-bin/cms/ajax/HistogramViewer.exe?";
 var BASE_URL = "http://cmstracker021.cern.ch:1977/urn:xdaq-application:lid=15/HistogramViewer?"
 var canvasList = new Array();
 var slideList = new Array();
