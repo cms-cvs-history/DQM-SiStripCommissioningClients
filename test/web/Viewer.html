@@ -13,23 +13,57 @@
   <div class="bloc1" style="width:56%;height:100%;float:left;">
     <fieldset style="background:#77FF87;">
       <legend >Drawing Canvas</legend>
-      <img id="drawingcanvas"
+      <div class="bloc1_1">
+        <img id="drawingcanvas"
            src="/temporary/web/blank.png" 
            width="100%"
            height="100%"
            style="border: 1px solid #000;"
            name="canvas">
-      </img>
-      <br/>
-      <button name="Make PDF" 
+        </img>
+        <br/>
+        <button name="Make PDF" 
               id="makepdfbutton"
               value="MakePDF" 
               style="width:15%;margin-left:85%;"
               onClick="RequestPlots('true');" 
               type="submit">
-         <img alt="Make PDF"/>
-      </button>
-
+           <img alt="Make PDF"/>
+        </button>
+      </div>   
+      <div class="bloc1_2" style="background:#A9FF84">
+	  <fieldset>
+	    
+            <input name="SubscribeAll" 
+                  id="subscribe_all"
+                  value="Subscribe All" 
+                  style="width:20%;margin-left:60%"
+                  onClick="RobSubscribeAll()" 
+                  type="submit">
+              </input>
+            <input name="UpdateHisto" 
+                  id="update_histo"
+                  value="Update Histos" 
+                  style="width:20%;margin-left:60%"
+                  onClick="RobUpdateHisto()" 
+                  type="submit">
+            </input>
+            <input name="MakeAnalysis" 
+                  id="make_analysis"
+                  value="Make Analysis" 
+                  style="width:20%;margin-left:60%"
+                  onClick="RobMakeAnalysis()" 
+                  type="submit">
+              </input>
+	      <input name="UpdateDB" 
+                  id="update_db"
+                  value="Update DataBase" 
+                  style="width:20%;margin-left:60%"
+                  onClick="RobUpdateDB()" 
+                  type="submit">
+              </input>
+	  </fieldset>
+      </div> 
     </fieldset>
   </div>
   <div class="bloc2" style="width:44%; float:right;">

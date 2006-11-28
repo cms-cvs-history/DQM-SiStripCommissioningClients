@@ -15,13 +15,54 @@ var firstMatchIndex = -1;
 /*
  get the base url
 */
+function getApplicationURL()
+{
+  var url = window.location.href;
+  // remove the cgi request from the end of the string
+  var index = url.indexOf("?");
+  if (index >= 0)
+  {
+    url = url.substring(0, index);
+  }
+
+  index = url.lastIndexOf("general");
+  url = url.substring(0, index);
+
+  // remove the trailing '/' from the end of the string
+  index = url.lastIndexOf("/");
+  if (index == url.length - 1)
+  {
+    url = url.substring(0, index);
+  }
+
+  return url;
+}
+
+function getApplicationURL2()
+{
+  var url = window.location.href;
+  // remove the cgi request from the end of the string
+  var index = url.indexOf("?");
+  if (index >= 0)
+  {
+    url = url.substring(0, index);
+  }
+
+  index = url.lastIndexOf("temporary");
+  url = url.substring(0, index);
+
+  // add the cgi request
+//  url += "urn:xdaq-application:lid=15";
+  return url;
+}
+
 
 function getBaseURL()
 {
-//  var app_url = getApplicationURL();
-//  var index = app_url.lastIndexOf("/");
-//  return app_url.substring(0, index)+"urn:xdaq-application:lid=15/HistogramViewer?";
-   return BASE_URL;
+  //var app_url = getApplicationURL2();
+  //var index = app_url.lastIndexOf("/");
+  //return app_url.substring(0, index)+"urn:xdaq-application:lid=15/HistogramViewer?";
+  return BASE_URL;
 }
 
 
