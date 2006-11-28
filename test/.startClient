@@ -10,5 +10,3 @@ then
 else
   perl $DIR/sendCmdToApp.pl _host_ _port_ client.xml
 fi
-
-

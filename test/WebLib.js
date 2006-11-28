@@ -8,7 +8,6 @@ var view_all_contents = true;
 // strings containing the names of all active GifDisplays 
 var active_displays_l = new Array(); 
 
-
 //*************************************************************/
 //*************************GIF DISPLAYS************************/
 //*************************************************************/

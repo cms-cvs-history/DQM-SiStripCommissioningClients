@@ -30,3 +30,4 @@ for($i=1; $i<=$nbRetries; $i++) {
 print "\n${host}:${port} is NOT listening\n";
 exit 1;
 
+

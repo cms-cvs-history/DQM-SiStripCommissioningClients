@@ -6,7 +6,6 @@
    xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">
  
   <SOAP-ENV:Header>
-
   </SOAP-ENV:Header>
 
   <SOAP-ENV:Body>

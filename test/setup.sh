@@ -46,4 +46,3 @@ chmod 755 profile.xml
 chmod 755 client.xml
 chmod 755 startClient
 
-

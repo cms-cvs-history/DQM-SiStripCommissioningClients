@@ -31,6 +31,5 @@
         <!-- HyperDAQ -->
         <xp:Application class="HyperDAQ" id="3"  service="hyperdaq" group="startup" network="local"/>
         <xp:Module>${XDAQ_ROOT}/lib/linux/x86/libhyperdaq.so</xp:Module>
-        
 
 </xp:Profile>
