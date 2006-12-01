@@ -70,25 +70,44 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
 				      const SiStripConfigDb::DeviceDescriptions& dcus , 
 				      const SiStripConfigDb::DcuDetIdMap& detids ) {
 
-  // Retrieve, clear and update FED-FEC mapping in base class
+  // Retrieve and clear FED-FEC mapping in base class
   FedToFecMap& fed_map = const_cast<FedToFecMap&>( mapping() );
   fed_map.clear();
     
+  // Update FED-FEC mapping in base class, based on analysis results
   map<uint32_t,FedCablingAnalysis>::const_iterator ianal;
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) {
     
-    // Generate keys
+    // Generate FED and FEC keys
     uint32_t fed_key = SiStripFedKey::key( ianal->second.fedId(), 
 					   ianal->second.fedCh() );
     SiStripFedKey::Path fed_path = SiStripFedKey::path( fed_key );
     SiStripFecKey::Path fec_path = SiStripFecKey::path( ianal->first );
 
-    // Pointer to connection description
+    // Check if FedKey is valid 
+    if ( fed_path.fedId_ == sistrip::invalid_ || 
+	 fed_path.fedCh_ == sistrip::invalid_ ) {
+      cerr << endl // edm::LogWarning(mlDqmClient_)
+	   << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	   << " Invalid FedId/Ch! " 
+	   << " Connection not established for"
+	   << " Crate/FEC/Ring/CCU/Module/LLDchan: "
+	   << fec_path.fecCrate_ << "/"
+	   << fec_path.fecSlot_ << "/"
+	   << fec_path.fecRing_ << "/"
+	   << fec_path.ccuAddr_ << "/"
+	   << fec_path.ccuChan_ << "/"
+	   << fec_path.channel_;
+      continue;
+    }
+    
+    // Add entry to FED-FEC mapping object if FedKey
+    fed_map[fed_key] = ianal->first;
+
+    // Attempt to retrieve connection for given FEC key
     FedChannelConnectionDescription* conn = 0;
-      
-    // Check if connection already exists
-    SiStripConfigDb::FedConnections::iterator iconn;
-    for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+    SiStripConfigDb::FedConnections::iterator iconn = conns.begin();
+    for ( ; iconn != conns.end(); iconn++ ) {
       if ( *iconn ) {
 	if ( (*iconn)->getFecInstance() == fec_path.fecCrate_ &&
 	     (*iconn)->getSlot() == fec_path.fecSlot_ &&
@@ -105,9 +124,11 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
       }
     }
     
-    // If connection does not already exist
+    // Create new connection if it does not already exist
     if ( !conn ) { conn = new FedChannelConnectionDescription(); }
-    else {
+    else if ( conn && 
+	      conn->getFedId() != ianal->second.fedId() &&
+	      conn->getFedChannel() != ianal->second.fedCh() ) {
       uint16_t ichan = sistrip::invalid_;
       if ( conn->getApv() ) { ichan = static_cast<uint16_t>((conn->getApv()-32)/2); }
       cerr << endl // edm::LogWarning(mlDqmClient_)
@@ -127,7 +148,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
 	   << ianal->second.fedCh();
     }
 
-    // Set data members
+    // Set data members (ie, "update" if connection already exists)
     conn->setFedId( ianal->second.fedId() );
     conn->setFedChannel( ianal->second.fedCh() );
     conn->setFecInstance( fec_path.fecCrate_ );
@@ -145,12 +166,12 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     SiStripConfigDb::DeviceDescriptions::const_iterator idcu;
     for ( idcu = dcus.begin(); idcu != dcus.end(); idcu++ ) {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
-      keyType key = dcu->getKey(); 
-      SiStripFecKey::Path path( fec_path.fecCrate_, //@@ sistrip::invalid_ ???
-				getFecKey(key),
-				getRingKey(key),
-				getCcuKey(key),
-				getChannelKey(key) );
+      const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
+      SiStripFecKey::Path path( addr.fecCrate_, 
+				addr.fecSlot_, 
+				addr.fecRing_, 
+				addr.ccuAddr_, 
+				addr.ccuChan_ ); 
       if ( path.fecCrate_ == fec_path.fecCrate_ && 
 	   path.fecRing_ == fec_path.fecRing_ && 
 	   path.fecSlot_ == fec_path.fecSlot_ && 
@@ -170,26 +191,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
       
     // Add FedChannelConnectionDescription to vector
     conns.push_back(conn);
-      
-    // Add entry to FED-FEC mapping object if FedKey is valid
-    if ( fed_path.fedId_ != sistrip::invalid_ || 
-	 fed_path.fedCh_ != sistrip::invalid_ ) {
-      fed_map[fed_key] = ianal->first;
-    } else {
-      cerr << endl // edm::LogWarning(mlDqmClient_)
-	   << "[FedCablingHistosUsingDb::" << __func__ << "]"
-	   << " Invalid FedId/Ch! " 
-	   << " Connection not established for"
-	   << " Crate/FEC/Ring/CCU/Module/LLDchan: "	
-	   << fec_path.fecCrate_ << "/"
-	   << fec_path.fecSlot_ << "/"
-	   << fec_path.fecRing_ << "/"
-	   << fec_path.ccuAddr_ << "/"
-	   << fec_path.ccuChan_ << "/"
-	   << fec_path.channel_;
-      continue;
-    }
-      
+    
     // Some debug
     cout << endl // LogTrace(mlDqmClient_)
 	 << "[FedCablingHistosUsingDb::" << __func__ << "]"
@@ -206,12 +208,12 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
 	 << fec_path.channel_;
 
   }
-
+  
   cout << endl // LogTrace(mlDqmClient_)
        << "[FedCablingHistosUsingDb::" << __func__ << "]"
        << " Added " << mapping().size()
        << " entries to FED-FEC mapping object!";
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -234,7 +236,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   } catch( ICUtils::ICException& e ) {
     cout << e.what() << endl;
   }
-	    
+  
   // Iterate through feds and enable connected channels
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
@@ -257,7 +259,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // Enable front-end unit and channel
       map<uint32_t,FedCablingAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
-
+	
 	Fed9U::Fed9UAddress addr( ichan );
 	Fed9U::Fed9UAddress addr0( ichan, static_cast<Fed9U::u8>(0) );
 	Fed9U::Fed9UAddress addr1( ichan, static_cast<Fed9U::u8>(1) );
