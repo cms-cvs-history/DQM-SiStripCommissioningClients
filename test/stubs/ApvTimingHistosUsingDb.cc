@@ -83,68 +83,106 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       continue;
     }
     
-    // Construct key from device description
-    uint32_t key = SiStripFecKey::key( sistrip::invalid_, //@@ one partition only!!!
-				       (*idevice)->getFecSlot(),
-				       (*idevice)->getRingSlot(),
-				       (*idevice)->getCcuAddress(),
-				       (*idevice)->getChannel() );
+    // Retrieve device addresses from device description
+    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
+    SiStripFecKey::Path fec_path;
+
+    // PLL delay settings
+    uint32_t coarse = sistrip::invalid_; 
+    uint32_t fine = sistrip::invalid_; 
     
-    // Locate appropriate analysis object    
-    map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( key );
-    if ( iter != data_.end() ) { 
+    // Iterate through LLD channels 
+    for ( uint16_t ichan = 0; ichan < 3; ichan++ ) {
       
-      // Check delay value
-      if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
-	cerr << endl // edm::LogWarning(mlDqmClient_) 
-	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	     << " Unexpected maximum time setting: "
-	     << iter->second.maxTime();
-	continue;
-      }
-      
-      // Check delay and tick height are valid
-      if ( iter->second.delay() < 0. || 
-	   iter->second.delay() > sistrip::maximum_ ) { 
-	cerr << endl // edm::LogWarning(mlDqmClient_) 
-	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	     << " Unexpected delay value: "
-	     << iter->second.delay();
-	continue; 
-      }
-      if ( iter->second.height() < 100. ) { 
-	cerr << endl // edm::LogWarning(mlDqmClient_) 
-	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	     << " Unexpected tick height: "
-	     << iter->second.height();
-	continue; 
-      }
-      
-      cout << endl // LogTrace(mlDqmClient_) 
-	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	   << " Initial PLL settings (coarse/fine): " 
-	   << desc->getDelayCoarse() << "/" << desc->getDelayFine();
+      uint32_t fec_key = SiStripFecKey::key( addr.fecCrate_, 
+					     addr.fecSlot_, 
+					     addr.fecRing_, 
+					     addr.ccuAddr_, 
+					     addr.ccuChan_,
+					     ichan );
+      fec_path = SiStripFecKey::path( fec_key );
+
+      // Locate appropriate analysis object    
+      map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( fec_key );
+      if ( iter != data_.end() ) { 
 	
-      // Update PLL settings
-      uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
-      uint32_t coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + delay ) / 24;
-      uint32_t fine   = ( desc->getDelayFine() + delay ) % 24;
+	// Check delay value
+	if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
+	  cerr << endl // edm::LogWarning(mlDqmClient_) 
+	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	       << " Unexpected maximum time setting: "
+	       << iter->second.maxTime();
+	  continue;
+	}
+	
+	// Check delay and tick height are valid
+	if ( iter->second.delay() < 0. || 
+	     iter->second.delay() > sistrip::maximum_ ) { 
+	  cerr << endl // edm::LogWarning(mlDqmClient_) 
+	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	       << " Unexpected delay value: "
+	       << iter->second.delay();
+	  continue; 
+	}
+	if ( iter->second.height() < 100. ) { 
+	  cerr << endl // edm::LogWarning(mlDqmClient_) 
+	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	       << " Unexpected tick height: "
+	       << iter->second.height();
+	  continue; 
+	}
+	
+	cout << endl // LogTrace(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Initial PLL settings (coarse/fine): " 
+	     << desc->getDelayCoarse() << "/" << desc->getDelayFine();
+	
+	// Update PLL settings
+	uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
+	coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + delay ) / 24;
+	fine   = ( desc->getDelayFine() + delay ) % 24;
+	
+      } else {
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan: " 
+	     << fec_path.fecCrate_ << "/"
+	     << fec_path.fecSlot_ << "/"
+	     << fec_path.fecRing_ << "/"
+	     << fec_path.ccuAddr_ << "/"
+	     << fec_path.ccuChan_ << "/"
+	     << fec_path.channel_;
+      }
+
+      // Exit LLD channel loop of coarse and fine delays are known
+      if ( coarse != sistrip::invalid_ && 
+	   fine != sistrip::invalid_ ) { break; }
+      
+    } // lld channel loop
+    
+    if ( coarse != sistrip::invalid_ && 
+	 fine != sistrip::invalid_ ) { 
       desc->setDelayCoarse(coarse);
       desc->setDelayFine(fine);
-      
       cout << endl // LogTrace(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	   << " Updated PLL settings (coarse/fine): " 
-	   << desc->getDelayCoarse() << "/" << desc->getDelayFine();
-      
+	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
+	   << " for FEC/slot/ring/CCU "
+	   << fec_path.fecCrate_ << "/"
+	   << fec_path.fecSlot_ << "/"
+	   << fec_path.fecRing_ << "/"
+	   << fec_path.ccuAddr_ << "/"
+	   << fec_path.ccuChan_ << "/";
     } else {
-      cerr << endl // edm::LogWarning(mlDqmClient_) 
+      cout << endl // LogTrace(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	   << " Unable to find PLL settings for device with params FEC/slot/ring/CCU: " 
-	   << (*idevice)->getFecSlot() << "/"
-	   << (*idevice)->getRingSlot() << "/"
-	   << (*idevice)->getCcuAddress() << "/"
-	   << (*idevice)->getChannel();
+	   << " Unexpected PLL delay settings for FEC/slot/ring/CCU: " 
+	   << fec_path.fecCrate_ << "/"
+	   << fec_path.fecSlot_ << "/"
+	   << fec_path.fecRing_ << "/"
+	   << fec_path.ccuAddr_ << "/"
+	   << fec_path.ccuChan_ << "/";
     }
 
   }
