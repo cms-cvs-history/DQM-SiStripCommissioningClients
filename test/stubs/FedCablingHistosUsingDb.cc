@@ -67,7 +67,7 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
 // -----------------------------------------------------------------------------
 /** */
 void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
-				      const SiStripConfigDb::DeviceDescriptions& dcus , 
+				      const SiStripConfigDb::DeviceDescriptions& dcus, 
 				      const SiStripConfigDb::DcuDetIdMap& detids ) {
 
   // Retrieve and clear FED-FEC mapping in base class
@@ -165,7 +165,15 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     // Retrieve DCU id 
     SiStripConfigDb::DeviceDescriptions::const_iterator idcu;
     for ( idcu = dcus.begin(); idcu != dcus.end(); idcu++ ) {
+      
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
+      if ( !dcu ) {
+	cerr << endl // edm::LogWarning(mlDqmClient_) 
+	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unable to dynamic cast to dcuDescription*";
+	continue;
+      }
+      
       const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
       SiStripFecKey::Path path( addr.fecCrate_, 
 				addr.fecSlot_, 

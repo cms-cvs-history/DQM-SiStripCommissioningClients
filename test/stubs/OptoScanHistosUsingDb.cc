@@ -14,7 +14,7 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"
-       << " Constructing object...";
+       << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"
-       << " Destructing object...";
+       << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   if ( !db_ ) {
     cerr << endl // edm::LogWarning(mlDqmClient_) 
 	 << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	 << " NULL pointer to SiStripConfigDb interface! Aborting upload...";
+	 << " NULL pointer to SiStripConfigDb interface! Aborting upload..." << endl;
     return;
   }
 
@@ -44,7 +44,7 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   db_->uploadDeviceDescriptions(false);
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"
-       << "Upload of LLD settings to DB finished!";
+       << "Upload of LLD settings to DB finished!" << endl;
 
 }
 
@@ -60,32 +60,38 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) {
       cerr << endl // edm::LogWarning(mlDqmClient_) 
 	   << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	   << " Unexpected device type: " << (*idevice)->getDeviceType();
+	   << " Unexpected device type: " 
+	   << (*idevice)->getDeviceType() << endl;
       continue;
     }
     
+    // Retrieve description
+    laserdriverDescription* desc = dynamic_cast<laserdriverDescription*>( *idevice );
+    if ( !desc ) {
+      cerr << endl // edm::LogWarning(mlDqmClient_) 
+	   << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	   << " Unable to dynamic cast to laserdriverDescription*" << endl;
+      continue;
+    }
+    
+    // Retrieve device addresses from device description
+    const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
+    SiStripFecKey::Path fec_path;
+    
     // Iterate through LLD channels
     for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
-      
-      // Construct key from device description
-      uint32_t key = SiStripFecKey::key( sistrip::invalid_,  //@@ FEC crate not used (?)
-					 (*idevice)->getFecSlot(),
-					 (*idevice)->getRingSlot(),
-					 (*idevice)->getCcuAddress(),
-					 (*idevice)->getChannel(),
-					 ichan );
 
-      // Retrieve description
-      laserdriverDescription* desc = reinterpret_cast<laserdriverDescription*>( *idevice );
-      if ( desc ) {
-	cerr << endl // edm::LogWarning(mlDqmClient_) 
-	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	     << " Unable to dynamic cast to laserdriverDescription*";
-	continue;
-      }
+      // Construct key from device description
+      uint32_t fec_key = SiStripFecKey::key( addr.fecCrate_, 
+					     addr.fecSlot_, 
+					     addr.fecRing_, 
+					     addr.ccuAddr_, 
+					     addr.ccuChan_,
+					     ichan );
+      fec_path = SiStripFecKey::path( fec_key );
       
       // Iterate through all channels and extract LLD settings 
-      map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( key );
+      map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) {
 
 	cout << endl // LogTrace(mlDqmClient_) 
@@ -105,12 +111,13 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       } else {
 	cerr << endl // edm::LogWarning(mlDqmClient_) 
 	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	     << " Unable to find PLL settings for device with params FEC/slot/ring/CCU/LLD channel: " 
-	     << (*idevice)->getFecSlot() << "/"
-	     << (*idevice)->getRingSlot() << "/"
-	     << (*idevice)->getCcuAddress() << "/"
-	     << (*idevice)->getChannel()
-	     << ichan;
+	     << " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan: " 
+	     << fec_path.fecCrate_ << "/"
+	     << fec_path.fecSlot_ << "/"
+	     << fec_path.fecRing_ << "/"
+	     << fec_path.ccuAddr_ << "/"
+	     << fec_path.ccuChan_ << "/"
+	     << fec_path.channel_;
       }
       
     }

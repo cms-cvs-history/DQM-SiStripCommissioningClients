@@ -13,13 +13,17 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
   : PedestalsHistograms( mui ),
     CommissioningHistosUsingDb( params )
 {
-  cout << __func__ << " Constructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[PedestalsHistosUsingDb::" << __func__ << "]"
+       << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
-  cout << __func__ << " Destructing object..." << endl;
+  cout << endl // LogTrace(mlDqmClient_) 
+       << "[PedestalsHistosUsingDb::" << __func__ << "]"
+       << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------

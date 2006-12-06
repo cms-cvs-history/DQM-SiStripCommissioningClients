@@ -13,8 +13,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " Constructing object...";
-
+       << " Constructing object..." << endl;
+  
   if ( params.usingDb_ ) {
 
     // Extract db connections params from CONFDB

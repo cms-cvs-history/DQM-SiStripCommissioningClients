@@ -15,7 +15,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << " Constructing object...";
+       << " Constructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 ApvTimingHistosUsingDb::~ApvTimingHistosUsingDb() {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << " Destructing object...";
+       << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -33,7 +33,8 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   if ( !db_ ) {
     cerr << endl // edm::LogWarning(mlDqmClient_) 
 	 << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	 << " NULL pointer to SiStripConfigDb interface! Aborting upload...";
+	 << " NULL pointer to SiStripConfigDb interface!"
+	 << " Aborting upload..." << endl;
     return;
   }
   
@@ -42,19 +43,21 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   SiStripConfigDb::DeviceDescriptions devices;
   db_->getDeviceDescriptions( devices, PLL ); 
   update( devices );
-  db_->uploadDeviceDescriptions(false);
+  //db_->uploadDeviceDescriptions(false);
+  cout << "[ApvTimingHistosUsingDb::" << __func__ << "] NO DB UPLOAD! CODE COMMENTED OUT!" << endl;
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << "Upload of PLL settings to DB finished!";
+       << "Upload of PLL settings to DB finished!" << endl;
   
   // Update FED descriptions with new ticker thresholds
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  db_->uploadFedDescriptions(false);
+  //db_->uploadFedDescriptions(false);
+  cout << "[ApvTimingHistosUsingDb::" << __func__ << "] NO DB UPLOAD! CODE COMMENTED OUT!" << endl;
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << "Upload of ticker thresholds to DB finished!";
+       << "Upload of ticker thresholds to DB finished!" << endl;
   
 }
 
@@ -70,19 +73,20 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     if ( (*idevice)->getDeviceType() != PLL ) {
       cerr << endl // edm::LogWarning(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	   << " Unexpected device type: " << (*idevice)->getDeviceType();
+	   << " Unexpected device type: " 
+	   << (*idevice)->getDeviceType() << endl;
       continue;
     }
     
     // Cast to retrieve appropriate description object
-    pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
+    pllDescription* desc = dynamic_cast<pllDescription*>( *idevice ); 
     if ( !desc ) {
       cerr << endl // edm::LogWarning(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	   << " Unable to dynamic cast to pllDescription*";
+	   << " Unable to dynamic cast to pllDescription*" << endl;
       continue;
     }
-    
+   
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
     SiStripFecKey::Path fec_path;
@@ -92,8 +96,9 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     uint32_t fine = sistrip::invalid_; 
     
     // Iterate through LLD channels 
-    for ( uint16_t ichan = 0; ichan < 3; ichan++ ) {
+    for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
       
+      // Construct key from device description
       uint32_t fec_key = SiStripFecKey::key( addr.fecCrate_, 
 					     addr.fecSlot_, 
 					     addr.fecRing_, 
@@ -111,7 +116,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected maximum time setting: "
-	       << iter->second.maxTime();
+	       << iter->second.maxTime() << endl;
 	  continue;
 	}
 	
@@ -121,21 +126,22 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected delay value: "
-	       << iter->second.delay();
+	       << iter->second.delay() << endl;
 	  continue; 
 	}
 	if ( iter->second.height() < 100. ) { 
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected tick height: "
-	       << iter->second.height();
+	       << iter->second.height() << endl;
 	  continue; 
 	}
 	
 	cout << endl // LogTrace(mlDqmClient_) 
 	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	     << " Initial PLL settings (coarse/fine): " 
-	     << desc->getDelayCoarse() << "/" << desc->getDelayFine();
+	     << desc->getDelayCoarse() << "/" 
+	     << desc->getDelayFine() << endl;
 	
 	// Update PLL settings
 	uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
@@ -151,7 +157,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	     << fec_path.fecRing_ << "/"
 	     << fec_path.ccuAddr_ << "/"
 	     << fec_path.ccuChan_ << "/"
-	     << fec_path.channel_;
+	     << fec_path.channel_ << endl;
       }
 
       // Exit LLD channel loop of coarse and fine delays are known
@@ -173,7 +179,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	   << fec_path.fecSlot_ << "/"
 	   << fec_path.fecRing_ << "/"
 	   << fec_path.ccuAddr_ << "/"
-	   << fec_path.ccuChan_ << "/";
+	   << fec_path.ccuChan_ << "/" << endl;
     } else {
       cout << endl // LogTrace(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
@@ -182,7 +188,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	   << fec_path.fecSlot_ << "/"
 	   << fec_path.fecRing_ << "/"
 	   << fec_path.ccuAddr_ << "/"
-	   << fec_path.ccuChan_ << "/";
+	   << fec_path.ccuChan_ << "/" << endl;
     }
 
   }
@@ -232,7 +238,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	     << path.fecRing_ << "/"
 	     << path.ccuAddr_ << "/"
 	     << path.ccuChan_ << "/"
-	     << path.channel_;
+	     << path.channel_ << endl;
       }
 
     }
