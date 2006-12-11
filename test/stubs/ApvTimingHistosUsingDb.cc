@@ -44,7 +44,6 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   db_->getDeviceDescriptions( devices, PLL ); 
   update( devices );
   //db_->uploadDeviceDescriptions(false);
-  cout << "[ApvTimingHistosUsingDb::" << __func__ << "] NO DB UPLOAD! CODE COMMENTED OUT!" << endl;
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
        << "Upload of PLL settings to DB finished!" << endl;
@@ -54,7 +53,6 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   //db_->uploadFedDescriptions(false);
-  cout << "[ApvTimingHistosUsingDb::" << __func__ << "] NO DB UPLOAD! CODE COMMENTED OUT!" << endl;
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
        << "Upload of ticker thresholds to DB finished!" << endl;
@@ -86,11 +84,11 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	   << " Unable to dynamic cast to pllDescription*" << endl;
       continue;
     }
-   
+    
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
     SiStripFecKey::Path fec_path;
-
+    
     // PLL delay settings
     uint32_t coarse = sistrip::invalid_; 
     uint32_t fine = sistrip::invalid_; 
@@ -140,13 +138,14 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	cout << endl // LogTrace(mlDqmClient_) 
 	     << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	     << " Initial PLL settings (coarse/fine): " 
-	     << desc->getDelayCoarse() << "/" 
-	     << desc->getDelayFine() << endl;
+	     << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
+	     << static_cast<uint16_t>( desc->getDelayFine() ) << endl;
 	
 	// Update PLL settings
 	uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
-	coarse = desc->getDelayCoarse() + ( desc->getDelayFine() + delay ) / 24;
-	fine   = ( desc->getDelayFine() + delay ) % 24;
+	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
+	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
+	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
 	
       } else {
 	cerr << endl // edm::LogWarning(mlDqmClient_) 
@@ -173,7 +172,8 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       cout << endl // LogTrace(mlDqmClient_) 
 	   << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	   << " Updated PLL settings (coarse/fine): " 
-	   << desc->getDelayCoarse() << "/" << desc->getDelayFine()
+	   << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
+	   << static_cast<uint16_t>( desc->getDelayFine() )
 	   << " for FEC/slot/ring/CCU "
 	   << fec_path.fecCrate_ << "/"
 	   << fec_path.fecSlot_ << "/"

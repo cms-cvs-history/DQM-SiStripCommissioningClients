@@ -97,11 +97,15 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
 	   << fec_path.fecRing_ << "/"
 	   << fec_path.ccuAddr_ << "/"
 	   << fec_path.ccuChan_ << "/"
-	   << fec_path.channel_;
+	   << fec_path.channel_ << endl;
       continue;
     }
     
     // Add entry to FED-FEC mapping object if FedKey
+    if ( fed_map.find(fed_key) != fed_map.end() ) { 
+      cout << "FED key already found!!!" << " KEY: " << fed_key
+	   << " ID: " << fed_path.fedId_ << " CH: " << fed_path.fedCh_ << endl;
+    }
     fed_map[fed_key] = ianal->first;
 
     // Attempt to retrieve connection for given FEC key
@@ -278,7 +282,7 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	SiStripFecKey::Path path = SiStripFecKey::path( fec_key );
 	cout << endl // LogTrace(mlDqmClient_)
 	     << "[FedCablingHistosUsingDb::" << __func__ << "]"
-	     << " Eanbled FED channel for FedKey/Id/Ch: 0x"
+	     << " Enabled FED channel for FedKey/Id/Ch: 0x"
 	     << hex << setw(8) << setfill('0') << fed_key << dec << "/"
 	     << (*ifed)->getFedId() << "/"
 	     << ichan 

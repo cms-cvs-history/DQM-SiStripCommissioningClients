@@ -41,7 +41,7 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   SiStripConfigDb::DeviceDescriptions devices;
   db_->getDeviceDescriptions( devices, LASERDRIVER );
   update( devices );
-  db_->uploadDeviceDescriptions(false);
+  //db_->uploadDeviceDescriptions(false);
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"
        << "Upload of LLD settings to DB finished!" << endl;
@@ -97,7 +97,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	cout << endl // LogTrace(mlDqmClient_) 
 	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	     << " Initial bias/gain settings for LLD channel " << ichan << ": " 
-	     << desc->getGain(ichan) << "/" << desc->getBias(ichan);
+	     << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
+	     << static_cast<uint16_t>(desc->getBias(ichan));
 
 	uint16_t gain = iter->second.gain();
 	desc->setGain( ichan, gain );
@@ -106,7 +107,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	cout << endl // LogTrace(mlDqmClient_) 
 	     << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	     << " Updated bias/gain settings for LLD channel " << ichan << ": " 
-	     << desc->getGain(ichan) << "/" << desc->getBias(ichan);
+	     << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
+	     << static_cast<uint16_t>(desc->getBias(ichan));
       
       } else {
 	cerr << endl // edm::LogWarning(mlDqmClient_) 
