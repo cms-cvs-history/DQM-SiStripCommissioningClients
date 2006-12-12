@@ -41,7 +41,7 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
   SiStripConfigDb::DeviceDescriptions devices;
   db_->getDeviceDescriptions( devices, LASERDRIVER );
   update( devices );
-  //db_->uploadDeviceDescriptions(false);
+  db_->uploadDeviceDescriptions(false);
   cout << endl // LogTrace(mlDqmClient_) 
        << "[OptoScanHistosUsingDb::" << __func__ << "]"
        << "Upload of LLD settings to DB finished!" << endl;
@@ -65,7 +65,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       continue;
     }
     
-    // Retrieve description
+    // Cast to retrieve appropriate description object
     laserdriverDescription* desc = dynamic_cast<laserdriverDescription*>( *idevice );
     if ( !desc ) {
       cerr << endl // edm::LogWarning(mlDqmClient_) 

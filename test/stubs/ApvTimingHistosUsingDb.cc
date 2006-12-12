@@ -52,7 +52,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  //db_->uploadFedDescriptions(false);
+  db_->uploadFedDescriptions(false);
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistosUsingDb::" << __func__ << "]"
        << "Upload of ticker thresholds to DB finished!" << endl;
