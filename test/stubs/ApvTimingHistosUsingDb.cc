@@ -106,32 +106,32 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       fec_path = SiStripFecKey::path( fec_key );
 
       // Locate appropriate analysis object    
-      map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( fec_key );
+      map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
 	
 	// Check delay value
-	if ( iter->second.maxTime() < 0. || iter->second.maxTime() > sistrip::maximum_ ) { 
+	if ( iter->second->maxTime() < 0. || iter->second->maxTime() > sistrip::maximum_ ) { 
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected maximum time setting: "
-	       << iter->second.maxTime() << endl;
+	       << iter->second->maxTime() << endl;
 	  continue;
 	}
 	
 	// Check delay and tick height are valid
-	if ( iter->second.delay() < 0. || 
-	     iter->second.delay() > sistrip::maximum_ ) { 
+	if ( iter->second->delay() < 0. || 
+	     iter->second->delay() > sistrip::maximum_ ) { 
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected delay value: "
-	       << iter->second.delay() << endl;
+	       << iter->second->delay() << endl;
 	  continue; 
 	}
-	if ( iter->second.height() < 100. ) { 
+	if ( iter->second->height() < 100. ) { 
 	  cerr << endl // edm::LogWarning(mlDqmClient_) 
 	       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	       << " Unexpected tick height: "
-	       << iter->second.height() << endl;
+	       << iter->second->height() << endl;
 	  continue; 
 	}
 	
@@ -142,7 +142,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	     << static_cast<uint16_t>( desc->getDelayFine() ) << endl;
 	
 	// Update PLL settings
-	uint32_t delay = static_cast<uint32_t>( rint( iter->second.delay() * 24. / 25. ) ); 
+	uint32_t delay = static_cast<uint32_t>( rint( iter->second->delay() * 24. / 25. ) ); 
 	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
 	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
@@ -219,9 +219,10 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       }
       
       // Locate appropriate analysis object 
-      map<uint32_t,ApvTimingAnalysis>::const_iterator iter = data_.find( fec_key );
+      map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
-	uint32_t thresh = static_cast<uint32_t>( iter->second.base() + (2./3.)*iter->second.height() );
+	uint32_t thresh = static_cast<uint32_t>( iter->second->base() + 
+						 iter->second->height()*(2./3.) );
 	Fed9U::Fed9UAddress addr( ichan );
 	(*ifed)->setFrameThreshold( addr, thresh );
       } else {
