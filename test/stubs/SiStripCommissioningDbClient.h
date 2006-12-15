@@ -3,7 +3,10 @@
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
 #include <boost/cstdint.hpp>
-#include<string>
+#include "xdata/include/xdata/UnsignedLong.h"
+#include "xdata/include/xdata/Boolean.h"
+#include "xdata/include/xdata/String.h"
+#include <string>
 
 class SiStripConfigDb;
 

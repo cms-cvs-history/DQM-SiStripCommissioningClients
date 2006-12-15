@@ -32,8 +32,8 @@ SiStripCommissioningDbClient::SiStripCommissioningDbClient( xdaq::ApplicationStu
        << "[SiStripCommissioningDbClient::" << __func__ << "]"
        << " Constructing object...";
 
-  // Retrieve database configuration parameters
-  xdata::InfoSpace *sp = getApplicationInfoSpace();
+  // Retrieve configurables from xml configuration file
+  xdata::InfoSpace* sp = getApplicationInfoSpace();
   sp->fireItemAvailable( "usingDb", &usingDb_ );
   sp->fireItemAvailable( "confdb", &confdb_ );
   sp->fireItemAvailable( "partition", &partition_ );
