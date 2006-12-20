@@ -13,7 +13,7 @@
 #include <SealBase/Callback.h>
 #include <iostream>
 
-XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningDbClient);
+XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningDbClient)
 
 using namespace std;
 using namespace sistrip;
