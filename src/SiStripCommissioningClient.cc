@@ -46,7 +46,7 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
 
   xgi::bind( this, &SiStripCommissioningClient::handleWebRequest, "Request" );
   xgi::bind( this, &SiStripCommissioningClient::CBHistogramViewer, "HistogramViewer" );
-  fCallBack = new BSem(BSem::EMPTY);
+  fCallBack = new toolbox::BSem(toolbox::BSem::EMPTY);
   fCallBack->give();
   hdis_ = NULL;
 
@@ -66,7 +66,7 @@ SiStripCommissioningClient::~SiStripCommissioningClient() {
 // -----------------------------------------------------------------------------
 /** Called whenever the client enters the "Configured" state. */
 void SiStripCommissioningClient::configure() {
-  cout << endl // LogTrace(mlDqmClient_)
+  std::cout << std::endl // LogTrace(mlDqmClient_)
        << "[SiStripCommissioningClient::" << __func__ << "]";
   // mui_->setVerbose(0);
   web_ = new SiStripCommissioningWebClient( this,
