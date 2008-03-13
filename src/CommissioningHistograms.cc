@@ -840,7 +840,10 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& mo
   
   // Extract data to be histogrammed
   uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
-  
+
+  // Only create histograms if entries are found!
+  if ( !xbins ) { return; }
+
   // Create summary histogram (if it doesn't already exist)
   TH1* summary = 0;
   if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
